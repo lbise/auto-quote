@@ -1,73 +1,66 @@
-# React + TypeScript + Vite
+# auto-quote
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript + Vite frontend, packaged for container deployment.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Build the app
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+## Build the Docker image locally
+
+```bash
+docker build -t auto-quote .
+docker run --rm -p 8080:8080 auto-quote
+```
+
+The container serves the built Vite app through nginx on port `8080`.
+
+## GitHub Actions + GHCR
+
+The workflow at `.github/workflows/docker-image.yml` does this automatically:
+
+- builds the Docker image on every pull request
+- publishes the image to GitHub Container Registry (`ghcr.io`) on pushes to `main`
+- also publishes version tags when you push a tag like `v1.0.0`
+
+Published image names follow this pattern:
+
+```text
+ghcr.io/<github-owner>/auto-quote:latest
+ghcr.io/<github-owner>/auto-quote:main
+ghcr.io/<github-owner>/auto-quote:sha-<commit>
+```
+
+### First-time GitHub setup
+
+1. Push this repository to GitHub.
+2. Open the repository's `Settings -> Actions -> General` page and make sure workflows can read and write packages.
+3. Run the workflow once by pushing to `main`.
+4. Check the new package under the repository owner's `Packages` section on GitHub.
+
+The workflow uses the built-in `GITHUB_TOKEN`, so no extra registry secret is needed for publishing to GHCR from the same repository.
+
+## Deploy with SwiftWave
+
+In SwiftWave, create an app that uses your GHCR image, for example:
+
+```text
+ghcr.io/<github-owner>/auto-quote:latest
+```
+
+Recommended container settings:
+
+- port: `8080`
+- restart policy: always
+- image pull policy: always or on deploy
+
+If your GitHub package is private, SwiftWave will also need GitHub Container Registry credentials with access to that package.

@@ -1,13 +1,33 @@
 # auto-quote
 
-React + TypeScript + Vite frontend, packaged for container deployment.
+React + TypeScript + Vite frontend with a FastAPI + SQLite backend foundation for the AutoQuote PoC.
 
 ## Local development
+
+### Frontend
 
 ```bash
 npm install
 npm run dev
 ```
+
+### Backend
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r server/requirements.txt
+alembic -c server/alembic.ini upgrade head
+uvicorn app.main:app --reload --app-dir server
+```
+
+The backend runs on `http://127.0.0.1:8000` and exposes:
+
+- `GET /api/health`
+- `GET /api/settings`
+- `PATCH /api/settings`
+
+The SQLite database file is created at `data/app.db`.
 
 ## Build the app
 
@@ -15,14 +35,16 @@ npm run dev
 npm run build
 ```
 
-## Build the Docker image locally
+## Build the frontend image locally
 
 ```bash
 docker build -t auto-quote .
 docker run --rm -p 8080:8080 auto-quote
 ```
 
-The container serves the built Vite app through nginx on port `8080`.
+The container currently serves the built Vite app through nginx on port `8080`.
+
+Backend production packaging will be updated in a later PoC phase.
 
 ## GitHub Actions + GHCR
 

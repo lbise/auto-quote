@@ -4,22 +4,38 @@ React + TypeScript + Vite frontend with a FastAPI + SQLite backend foundation fo
 
 ## Local development
 
-### Frontend
+### One-time setup
 
 ```bash
 npm install
+npm run setup:backend
+```
+
+### Run the full app
+
+```bash
 npm run dev
 ```
 
-### Backend
+That command now:
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r server/requirements.txt
-alembic -c server/alembic.ini upgrade head
-uvicorn app.main:app --reload --app-dir server
-```
+- runs the backend migrations
+- starts the Vite frontend
+- starts the FastAPI backend
+- reuses an already-running backend on port `8000` instead of failing
+- exposes the app on your local network
+- falls back to another backend port if `8000` is occupied by an outdated process
+
+If you only want one side of the app, you can also use:
+
+- `npm run dev:web`
+- `npm run dev:api`
+
+From another device on the same network, open:
+
+- `http://<your-machine-ip>:5173`
+
+If port `5173` is already taken, Vite will choose another port and print it in the terminal.
 
 The backend runs on `http://127.0.0.1:8000` and exposes:
 

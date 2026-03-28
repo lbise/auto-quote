@@ -26,8 +26,18 @@ The backend runs on `http://127.0.0.1:8000` and exposes:
 - `GET /api/health`
 - `GET /api/settings`
 - `PATCH /api/settings`
+- `GET /api/quotes`
+- `POST /api/quotes`
+- `GET /api/quotes/{id}`
+- `PATCH /api/quotes/{id}`
 
 The SQLite database file is created at `data/app.db`.
+
+The frontend now includes:
+
+- `/` for the quote dashboard
+- `/settings` for business defaults
+- `/quotes/:id` for the quote workspace shell
 
 ## Build the app
 

@@ -14,15 +14,20 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 - [x] Chose the PoC backend stack: `FastAPI + SQLite`
 - [x] Agreed to keep the first version intentionally small and VPS-friendly
 - [x] Defined the first implementation plan and scope
+- [x] Added quote persistence models and migrations
+- [x] Added quote CRUD endpoints in FastAPI
+- [x] Added deterministic quote totals in the backend service layer
+- [x] Added dashboard and quote workspace routes in the frontend
+- [x] Added manual quote editing for customer details, scope, and line items
 
 ### Current Milestone Checklist
 
 - [x] Add FastAPI backend skeleton
 - [x] Add SQLite database and migrations
 - [x] Add settings API and settings screen
-- [ ] Add quote CRUD API
-- [ ] Add quote workspace UI
-- [ ] Add deterministic quote total calculation
+- [x] Add quote CRUD API
+- [x] Add quote workspace UI
+- [x] Add deterministic quote total calculation
 - [ ] Add LLM chat endpoint with schema validation
 - [ ] Add quote review and print flow
 - [ ] Deploy PoC to VPS with persistent SQLite storage
@@ -506,20 +511,20 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] add quote and line item models
-- [ ] add quote CRUD endpoints
-- [ ] add dashboard screen
-- [ ] add quote workspace route
-- [ ] add quote editor panel
-- [ ] add manual line item editing
-- [ ] add save and update flow
+- [x] add quote and line item models
+- [x] add quote CRUD endpoints
+- [x] add dashboard screen
+- [x] add quote workspace route
+- [x] add quote editor panel
+- [x] add manual line item editing
+- [x] add save and update flow
 
 Acceptance criteria:
 
-- owner can create a draft quote
-- owner can edit customer fields and line items
-- totals are calculated correctly
-- quote can be saved and reopened
+- [x] owner can create a draft quote
+- [x] owner can edit customer fields and line items
+- [x] totals are calculated correctly
+- [x] quote can be saved and reopened
 
 ### Phase 3 - LLM Chat Integration
 
@@ -545,12 +550,12 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] add loading and error states
-- [ ] add `needs review` UI for incomplete pricing
+- [x] add loading and error states
+- [x] add `needs review` UI for incomplete pricing
 - [ ] add print-friendly quote view
-- [ ] add quote status badge
+- [x] add quote status badge
 - [ ] add simple search or filter on dashboard
-- [ ] improve empty states and messaging
+- [x] improve empty states and messaging
 
 Acceptance criteria:
 

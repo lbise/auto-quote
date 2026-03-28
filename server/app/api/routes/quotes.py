@@ -1,0 +1,55 @@
+from fastapi import APIRouter, Body, Depends, status
+from sqlalchemy.orm import Session
+
+from app.core.db import get_db
+from app.schemas.quotes import QuoteCreate, QuoteListItem, QuoteRead, QuoteUpdate
+from app.services.quote_service import create_quote, get_quote, list_quotes, update_quote
+
+
+router = APIRouter(prefix="/quotes", tags=["quotes"])
+
+
+@router.get("", response_model=list[QuoteListItem])
+def read_quotes(db: Session = Depends(get_db)) -> list[QuoteListItem]:
+    quotes = list_quotes(db)
+    return [
+        QuoteListItem(
+            id=quote.id,
+            quote_number=quote.quote_number,
+            status=quote.status,
+            customer_name=quote.customer_name,
+            customer_company=quote.customer_company,
+            title=quote.title,
+            currency=quote.currency,
+            total_cents=quote.total_cents,
+            pricing_complete=quote.pricing_complete,
+            item_count=len(quote.line_items),
+            updated_at=quote.updated_at,
+        )
+        for quote in quotes
+    ]
+
+
+@router.post("", response_model=QuoteRead, status_code=status.HTTP_201_CREATED)
+def create_quote_route(
+    payload: QuoteCreate | None = Body(default=None),
+    db: Session = Depends(get_db),
+) -> QuoteRead:
+    quote = create_quote(db, payload or QuoteCreate())
+    return QuoteRead.model_validate(quote)
+
+
+@router.get("/{quote_id}", response_model=QuoteRead)
+def read_quote(quote_id: int, db: Session = Depends(get_db)) -> QuoteRead:
+    quote = get_quote(db, quote_id)
+    return QuoteRead.model_validate(quote)
+
+
+@router.patch("/{quote_id}", response_model=QuoteRead)
+def patch_quote(
+    quote_id: int,
+    payload: QuoteUpdate,
+    db: Session = Depends(get_db),
+) -> QuoteRead:
+    quote = update_quote(db, quote_id, payload)
+    return QuoteRead.model_validate(quote)

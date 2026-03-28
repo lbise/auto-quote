@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import {
   RiAddLine,
   RiArrowRightUpLine,
@@ -8,26 +8,26 @@ import {
   RiSettings3Line,
   RiTimeLine,
 } from "@remixicon/react"
+import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 
 import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { createQuote, getQuotes, type QuoteListItem } from "@/lib/api"
 import { formatCurrency, formatDateTime } from "@/lib/format"
 
 function DashboardPage() {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage
   const navigate = useNavigate()
   const [quotes, setQuotes] = useState<QuoteListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    void loadQuotes()
-  }, [])
-
-  async function loadQuotes() {
+  const loadQuotes = useCallback(async () => {
     setIsLoading(true)
     setError(null)
 
@@ -35,11 +35,15 @@ function DashboardPage() {
       const response = await getQuotes()
       setQuotes(response)
     } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Could not load quotes")
+      setError(toErrorMessage(loadError, t("dashboard.errors.loadQuotes")))
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [t])
+
+  useEffect(() => {
+    void loadQuotes()
+  }, [loadQuotes])
 
   async function handleCreateQuote() {
     setIsCreating(true)
@@ -49,33 +53,31 @@ function DashboardPage() {
       const quote = await createQuote({})
       navigate(`/quotes/${quote.id}`)
     } catch (createError) {
-      setError(createError instanceof Error ? createError.message : "Could not create quote")
+      setError(toErrorMessage(createError, t("dashboard.errors.createQuote")))
       setIsCreating(false)
     }
   }
 
-  const stats = useMemo(() => {
-    const ready = quotes.filter((quote) => quote.status === "ready").length
-    const drafts = quotes.filter((quote) => quote.status === "draft").length
+  const readyCount = quotes.filter((quote) => quote.status === "ready").length
+  const draftCount = quotes.filter((quote) => quote.status === "draft").length
 
-    return [
-      {
-        label: "Total quotes",
-        value: String(quotes.length),
-        icon: RiFileList3Line,
-      },
-      {
-        label: "Drafts",
-        value: String(drafts),
-        icon: RiDraftLine,
-      },
-      {
-        label: "Ready to send",
-        value: String(ready),
-        icon: RiTimeLine,
-      },
-    ]
-  }, [quotes])
+  const stats = [
+    {
+      label: t("dashboard.stats.totalQuotes"),
+      value: String(quotes.length),
+      icon: RiFileList3Line,
+    },
+    {
+      label: t("dashboard.stats.drafts"),
+      value: String(draftCount),
+      icon: RiDraftLine,
+    },
+    {
+      label: t("dashboard.stats.readyToSend"),
+      value: String(readyCount),
+      icon: RiTimeLine,
+    },
+  ]
 
   return (
     <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] xl:grid-cols-[0.8fr_1.2fr]">
@@ -86,14 +88,13 @@ function DashboardPage() {
           <CardHeader className="relative gap-4 p-7 sm:p-8">
             <div className="space-y-4">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-                Quote dashboard
+                {t("dashboard.eyebrow")}
               </p>
               <h1 className="max-w-2xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.25rem] lg:leading-[1.02]">
-                Create, revisit, and shape quote drafts before the assistant starts writing.
+                {t("dashboard.title")}
               </h1>
               <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-                Phase 2 turns the settings foundation into real quote records, a live
-                workspace, and deterministic totals the future chat assistant can build on.
+                {t("dashboard.description")}
               </p>
             </div>
 
@@ -105,13 +106,13 @@ function DashboardPage() {
                 disabled={isCreating}
               >
                 {isCreating ? <RiLoader4Line className="size-4 animate-spin" /> : <RiAddLine className="size-4" />}
-                {isCreating ? "Creating draft..." : "New quote"}
+                {isCreating ? t("dashboard.creatingDraft") : t("dashboard.newQuote")}
               </Button>
 
               <Button asChild variant="outline" size="lg" className="h-11 rounded-full px-5 text-sm">
                 <Link to="/settings">
                   <RiSettings3Line className="size-4" />
-                  Review defaults
+                  {t("dashboard.reviewDefaults")}
                 </Link>
               </Button>
             </div>
@@ -154,15 +155,15 @@ function DashboardPage() {
       <Card className="border-white/60 bg-white/75">
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
           <div>
-            <CardTitle>Recent quotes</CardTitle>
+            <CardTitle>{t("dashboard.recent.title")}</CardTitle>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Open a draft to edit customer details, line items, and totals before chat automation lands.
+              {t("dashboard.recent.description")}
             </p>
           </div>
 
           <Button variant="outline" className="h-10 rounded-full px-4 text-sm" onClick={() => void loadQuotes()}>
             {isLoading ? <RiLoader4Line className="size-4 animate-spin" /> : <RiTimeLine className="size-4" />}
-            Refresh
+            {t("dashboard.recent.refresh")}
           </Button>
         </CardHeader>
 
@@ -171,21 +172,23 @@ function DashboardPage() {
             <div className="flex min-h-80 items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background/60">
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <RiLoader4Line className="size-5 animate-spin" />
-                Loading saved drafts...
+                {t("dashboard.recent.loading")}
               </div>
             </div>
           ) : quotes.length === 0 ? (
             <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
               <div className="space-y-2">
-                <p className="font-heading text-2xl font-semibold tracking-tight">No quotes yet</p>
+                <p className="font-heading text-2xl font-semibold tracking-tight">
+                  {t("dashboard.recent.emptyTitle")}
+                </p>
                 <p className="max-w-md text-sm leading-6 text-muted-foreground">
-                  Create the first draft and use it as the backbone for the upcoming assistant workflow.
+                  {t("dashboard.recent.emptyDescription")}
                 </p>
               </div>
 
               <Button className="h-11 rounded-full px-5 text-sm font-semibold" onClick={() => void handleCreateQuote()}>
                 <RiAddLine className="size-4" />
-                Start first quote
+                {t("dashboard.recent.emptyAction")}
               </Button>
             </div>
           ) : (
@@ -199,6 +202,9 @@ function DashboardPage() {
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <QuoteStatusBadge status={quote.status} />
+                      <Badge variant="outline" className="bg-white/70 uppercase">
+                        {t(`common.localeShort.${quote.locale}`)}
+                      </Badge>
                       <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                         {quote.quote_number}
                       </span>
@@ -206,31 +212,31 @@ function DashboardPage() {
 
                     <div>
                       <p className="font-heading text-xl font-semibold tracking-tight text-foreground">
-                        {quote.title || "Untitled quote draft"}
+                        {quote.title || t("common.untitledQuote")}
                       </p>
                       <p className="mt-1 text-sm text-muted-foreground">
-                        {quote.customer_company || quote.customer_name || "Customer details not set yet"}
+                        {quote.customer_company || quote.customer_name || t("dashboard.recent.missingCustomer")}
                       </p>
                     </div>
                   </div>
 
                   <div className="text-right">
                     <p className="font-heading text-2xl font-semibold tracking-tight">
-                      {formatCurrency(quote.total_cents, quote.currency)}
+                      {formatCurrency(quote.total_cents, quote.currency, locale)}
                     </p>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {quote.pricing_complete ? "Priced" : "Needs review"}
+                      {quote.pricing_complete ? t("dashboard.recent.priced") : t("dashboard.recent.needsReview")}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4 text-sm text-muted-foreground">
                   <div className="flex flex-wrap items-center gap-4">
-                    <span>{quote.item_count} line item{quote.item_count === 1 ? "" : "s"}</span>
-                    <span>Updated {formatDateTime(quote.updated_at)}</span>
+                    <span>{t("dashboard.recent.lineItems", { count: quote.item_count })}</span>
+                    <span>{t("dashboard.recent.updated", { value: formatDateTime(quote.updated_at, locale) })}</span>
                   </div>
                   <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                    Open workspace
+                    {t("dashboard.recent.openWorkspace")}
                     <RiArrowRightUpLine className="size-4" />
                   </span>
                 </div>
@@ -241,6 +247,10 @@ function DashboardPage() {
       </Card>
     </div>
   )
+}
+
+function toErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error && error.message ? error.message : fallback
 }
 
 export default DashboardPage

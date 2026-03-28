@@ -19,6 +19,7 @@ def read_quotes(db: Session = Depends(get_db)) -> list[QuoteListItem]:
             status=quote.status,
             customer_name=quote.customer_name,
             customer_company=quote.customer_company,
+            locale=quote.locale,
             title=quote.title,
             currency=quote.currency,
             total_cents=quote.total_cents,

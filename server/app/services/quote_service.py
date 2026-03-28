@@ -58,19 +58,17 @@ def create_quote(db: Session, payload: QuoteCreate) -> Quote:
         customer_email=payload.customer_email,
         customer_phone=payload.customer_phone.strip(),
         customer_address=payload.customer_address.strip(),
+        locale=(payload.locale or settings.default_locale).strip(),
         title=payload.title.strip(),
         job_summary=payload.job_summary.strip(),
         assumptions=payload.assumptions.strip(),
         notes=payload.notes.strip(),
-        payment_terms=payload.payment_terms.strip() or settings.default_payment_terms,
-        currency=payload.currency.strip().upper() or settings.default_currency,
-        tax_rate=payload.tax_rate,
+        payment_terms=(payload.payment_terms or settings.default_payment_terms).strip(),
+        currency=(payload.currency or settings.default_currency).strip().upper(),
+        tax_rate=payload.tax_rate if payload.tax_rate is not None else settings.default_tax_rate,
         valid_until=payload.valid_until or date.today() + timedelta(days=settings.default_validity_days),
         line_items=[_build_line_item(item, index) for index, item in enumerate(payload.line_items)],
     )
-
-    if quote.tax_rate == 0:
-        quote.tax_rate = settings.default_tax_rate
 
     recalculate_quote(quote)
     db.add(quote)

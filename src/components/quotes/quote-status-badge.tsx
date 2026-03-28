@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next"
+
 import { Badge } from "@/components/ui/badge"
 import type { QuoteStatus } from "@/lib/api"
 import { cn } from "@/lib/utils"
@@ -9,9 +11,11 @@ const statusStyles: Record<QuoteStatus, string> = {
 }
 
 function QuoteStatusBadge({ status, className }: { status: QuoteStatus; className?: string }) {
+  const { t } = useTranslation()
+
   return (
     <Badge variant="outline" className={cn(statusStyles[status], className)}>
-      {status}
+      {t(`status.${status}`)}
     </Badge>
   )
 }

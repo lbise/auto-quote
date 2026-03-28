@@ -19,6 +19,7 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 - [x] Added deterministic quote totals in the backend service layer
 - [x] Added dashboard and quote workspace routes in the frontend
 - [x] Added manual quote editing for customer details, scope, and line items
+- [x] Added English/French UI foundations with French as the default locale
 
 ### Current Milestone Checklist
 

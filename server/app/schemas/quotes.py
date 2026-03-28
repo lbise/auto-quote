@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 QuoteStatus = Literal["draft", "ready", "sent"]
 LineItemSource = Literal["manual", "ai"]
+LocaleCode = Literal["fr", "en"]
 
 
 class QuoteLineItemInput(BaseModel):
@@ -32,17 +33,33 @@ class QuoteBase(BaseModel):
     customer_email: EmailStr | None = None
     customer_phone: str = ""
     customer_address: str = ""
+    locale: LocaleCode = "fr"
     title: str = ""
     job_summary: str = ""
     assumptions: str = ""
     notes: str = ""
-    payment_terms: str = "Payment due on receipt"
+    payment_terms: str = "Paiement à réception"
     currency: str = Field(default="USD", min_length=3, max_length=8)
     tax_rate: float = Field(default=0, ge=0, le=1)
     valid_until: date | None = None
 
 
-class QuoteCreate(QuoteBase):
+class QuoteCreate(BaseModel):
+    status: QuoteStatus = "draft"
+    customer_name: str = ""
+    customer_company: str = ""
+    customer_email: EmailStr | None = None
+    customer_phone: str = ""
+    customer_address: str = ""
+    locale: LocaleCode | None = None
+    title: str = ""
+    job_summary: str = ""
+    assumptions: str = ""
+    notes: str = ""
+    payment_terms: str | None = None
+    currency: str | None = Field(default=None, min_length=3, max_length=8)
+    tax_rate: float | None = Field(default=None, ge=0, le=1)
+    valid_until: date | None = None
     line_items: list[QuoteLineItemInput] = Field(default_factory=list)
 
 
@@ -53,6 +70,7 @@ class QuoteUpdate(BaseModel):
     customer_email: EmailStr | None = None
     customer_phone: str | None = None
     customer_address: str | None = None
+    locale: LocaleCode | None = None
     title: str | None = None
     job_summary: str | None = None
     assumptions: str | None = None
@@ -84,6 +102,7 @@ class QuoteListItem(BaseModel):
     status: QuoteStatus
     customer_name: str
     customer_company: str
+    locale: LocaleCode
     title: str
     currency: str
     total_cents: int

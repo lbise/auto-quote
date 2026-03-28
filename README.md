@@ -55,6 +55,12 @@ The frontend now includes:
 - `/settings` for business defaults
 - `/quotes/:id` for the quote workspace shell
 
+Language support currently includes:
+
+- French UI by default
+- English and French interface translations
+- a per-quote language field for the upcoming assistant flow
+
 ## Build the app
 
 ```bash

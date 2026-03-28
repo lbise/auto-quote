@@ -1,9 +1,12 @@
+import type { AppLocale } from "@/lib/locale"
+
 export type BusinessSettings = {
   id: number
   business_name: string
   business_email: string | null
   business_phone: string
   business_address: string
+  default_locale: AppLocale
   default_currency: string
   default_tax_rate: number
   default_payment_terms: string
@@ -38,6 +41,7 @@ export type Quote = {
   customer_email: string | null
   customer_phone: string
   customer_address: string
+  locale: AppLocale
   title: string
   job_summary: string
   assumptions: string
@@ -61,6 +65,7 @@ export type QuoteListItem = {
   status: QuoteStatus
   customer_name: string
   customer_company: string
+  locale: AppLocale
   title: string
   currency: string
   total_cents: number

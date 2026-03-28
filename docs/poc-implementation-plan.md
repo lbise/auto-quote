@@ -17,9 +17,9 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 
 ### Current Milestone Checklist
 
-- [ ] Add FastAPI backend skeleton
-- [ ] Add SQLite database and migrations
-- [ ] Add settings API and settings screen
+- [x] Add FastAPI backend skeleton
+- [x] Add SQLite database and migrations
+- [x] Add settings API and settings screen
 - [ ] Add quote CRUD API
 - [ ] Add quote workspace UI
 - [ ] Add deterministic quote total calculation
@@ -486,21 +486,21 @@ If async state becomes annoying later, add React Query.
 
 Tasks:
 
-- [ ] add FastAPI app skeleton
-- [ ] add config management
-- [ ] add SQLite connection
-- [ ] add SQLAlchemy models
-- [ ] add Alembic migrations
-- [ ] add `GET /api/health`
-- [ ] add settings read and update endpoints
-- [ ] add local dev setup for frontend and backend
+- [x] add FastAPI app skeleton
+- [x] add config management
+- [x] add SQLite connection
+- [x] add SQLAlchemy models
+- [x] add Alembic migrations
+- [x] add `GET /api/health`
+- [x] add settings read and update endpoints
+- [x] add local dev setup for frontend and backend
 
 Acceptance criteria:
 
-- frontend and backend run locally
-- SQLite DB file is created
-- settings can be loaded and updated
-- health endpoint works
+- [x] frontend and backend run locally
+- [x] SQLite DB file is created
+- [x] settings can be loaded and updated
+- [x] health endpoint works
 
 ### Phase 2 - Quote CRUD + Workspace Shell
 

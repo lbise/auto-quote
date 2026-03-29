@@ -1,4 +1,4 @@
-FROM node:22-alpine AS build
+FROM node:22-alpine AS frontend-build
 WORKDIR /app
 
 COPY package*.json ./
@@ -7,8 +7,23 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.27-alpine
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+FROM python:3.12-slim AS runtime
 
-EXPOSE 8080
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000
+
+WORKDIR /app
+
+COPY server/requirements.txt server/requirements.txt
+RUN pip install --no-cache-dir -r server/requirements.txt
+
+COPY server server
+COPY scripts/start.sh scripts/start.sh
+COPY --from=frontend-build /app/dist dist
+
+RUN mkdir -p /app/data && chmod +x /app/scripts/start.sh
+
+EXPOSE 8000
+
+CMD ["/app/scripts/start.sh"]

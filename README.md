@@ -82,20 +82,23 @@ Optional real LLM environment variables:
 npm run build
 ```
 
-## Build the frontend image locally
+## Build the production image locally
 
 ```bash
 docker build -t auto-quote .
-docker run --rm -p 8080:8080 auto-quote
+docker run --rm -p 8000:8000 -v "$(pwd)/data:/app/data" auto-quote
 ```
 
-The container currently serves the built Vite app through nginx on port `8080`.
+The production container now:
 
-Backend production packaging will be updated in a later PoC phase.
+- serves the built frontend through FastAPI
+- exposes the API and app on port `8000`
+- runs Alembic migrations on startup
+- stores SQLite at `/app/data/app.db`
 
 ## GitHub Actions + GHCR
 
-The workflow at `.github/workflows/docker-image.yml` does this automatically:
+The workflow at `.github/workflows/docker-image.yml` now builds the full-stack image automatically and:
 
 - builds the Docker image on every pull request
 - publishes the image to GitHub Container Registry (`ghcr.io`) on pushes to `main`
@@ -128,8 +131,24 @@ ghcr.io/<github-owner>/auto-quote:latest
 
 Recommended container settings:
 
-- port: `8080`
+- port: `8000`
 - restart policy: always
 - image pull policy: always or on deploy
+- health check path: `/api/health`
+
+Recommended persistent volume:
+
+- mount path: `/app/data`
+
+Recommended environment variables:
+
+- `APP_ENV=production`
+- `DATABASE_URL=sqlite:////app/data/app.db`
+- `LLM_MODE=auto` or `LLM_MODE=openai`
+- `OPENAI_API_KEY` when using a real model
+
+Important SQLite constraint:
+
+- run a single replica only; do not scale this PoC horizontally while using SQLite
 
 If your GitHub package is private, SwiftWave will also need GitHub Container Registry credentials with access to that package.

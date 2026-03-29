@@ -176,6 +176,28 @@ export const resources = {
         lastSaved: "Dernière sauvegarde",
         validUntil: "Valide jusqu'au",
         totalsPreview: "Aperçu des totaux",
+        chat: {
+          hintReady: "Discutez avec l'assistant pour enrichir ce brouillon enregistré.",
+          hintSaveFirst: "Enregistrez d'abord vos modifications manuelles avant d'envoyer un message à l'assistant.",
+          emptyTitle: "Commencez la conversation",
+          emptyDescription:
+            "Décrivez le projet, le besoin du client ou les informations manquantes. L'assistant posera ensuite une question ciblée ou mettra à jour le brouillon.",
+          inputPlaceholder:
+            "Ex : Je dois préparer un devis pour repeindre deux salles de réunion et le hall d'accueil.",
+          send: "Envoyer",
+          sending: "Analyse...",
+          errors: {
+            send: "Impossible d'envoyer le message à l'assistant",
+          },
+          actions: {
+            askQuestion: "Question",
+            updateQuote: "Brouillon mis à jour",
+          },
+          roles: {
+            assistant: "IA",
+            owner: "Gérant",
+          },
+        },
         subtotal: "Sous-total",
         tax: "TVA ({{value}})",
         total: "Total",
@@ -481,6 +503,28 @@ export const resources = {
         lastSaved: "Last saved",
         validUntil: "Valid until",
         totalsPreview: "Totals preview",
+        chat: {
+          hintReady: "Chat with the assistant to enrich this saved draft.",
+          hintSaveFirst: "Save your manual edits before sending a message to the assistant.",
+          emptyTitle: "Start the conversation",
+          emptyDescription:
+            "Describe the project, the customer request, or the missing details. The assistant will either ask a focused question or update the draft.",
+          inputPlaceholder:
+            "Example: I need a quote for repainting two meeting rooms and the reception hall.",
+          send: "Send",
+          sending: "Thinking...",
+          errors: {
+            send: "Could not send the message to the assistant",
+          },
+          actions: {
+            askQuestion: "Question",
+            updateQuote: "Draft updated",
+          },
+          roles: {
+            assistant: "AI",
+            owner: "Owner",
+          },
+        },
         subtotal: "Subtotal",
         tax: "Tax ({{value}})",
         total: "Total",

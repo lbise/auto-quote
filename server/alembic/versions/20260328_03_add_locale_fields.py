@@ -20,15 +20,6 @@ def upgrade() -> None:
         sa.Column("locale", sa.String(length=5), nullable=False, server_default="fr"),
     )
 
-    op.execute(
-        "UPDATE settings SET default_payment_terms = 'Paiement à réception' "
-        "WHERE default_payment_terms = 'Payment due on receipt'"
-    )
-    op.execute(
-        "UPDATE quotes SET payment_terms = 'Paiement à réception' "
-        "WHERE payment_terms = 'Payment due on receipt'"
-    )
-
 
 def downgrade() -> None:
     op.drop_column("quotes", "locale")

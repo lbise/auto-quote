@@ -26,6 +26,16 @@ class QuoteLineItemRead(QuoteLineItemInput):
     sort_order: int
 
 
+class QuoteMessageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    role: Literal["user", "assistant", "system"]
+    content: str
+    assistant_action: Literal["ask_question", "update_quote"] | None = None
+    created_at: datetime
+
+
 class QuoteBase(BaseModel):
     status: QuoteStatus = "draft"
     customer_name: str = ""
@@ -92,6 +102,7 @@ class QuoteRead(QuoteBase):
     total_cents: int
     pricing_complete: bool
     line_items: list[QuoteLineItemRead]
+    messages: list[QuoteMessageRead]
     created_at: datetime
     updated_at: datetime
 

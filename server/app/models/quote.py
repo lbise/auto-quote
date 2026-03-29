@@ -49,3 +49,8 @@ class Quote(Base):
         cascade="all, delete-orphan",
         order_by="QuoteLineItem.sort_order",
     )
+    messages: Mapped[list["QuoteMessage"]] = relationship(
+        back_populates="quote",
+        cascade="all, delete-orphan",
+        order_by="QuoteMessage.id",
+    )

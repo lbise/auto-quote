@@ -20,6 +20,7 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 - [x] Added dashboard and quote workspace routes in the frontend
 - [x] Added manual quote editing for customer details, scope, and line items
 - [x] Added English/French UI foundations with French as the default locale
+- [x] Added quote chat persistence and a first assistant workflow for the workspace
 
 ### Current Milestone Checklist
 
@@ -531,21 +532,21 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] add prompt file
-- [ ] implement `llm_service.py`
-- [ ] define Pydantic schema for assistant response
-- [ ] add `POST /api/quotes/{id}/chat`
-- [ ] store quote messages
-- [ ] merge validated quote patches
-- [ ] show updated quote state in the UI
+- [x] add prompt file
+- [x] implement `llm_service.py`
+- [x] define Pydantic schema for assistant response
+- [x] add `POST /api/quotes/{id}/chat`
+- [x] store quote messages
+- [x] merge validated quote patches
+- [x] show updated quote state in the UI
 
 Acceptance criteria:
 
-- owner can chat against a quote
-- assistant asks follow-up questions when needed
-- assistant can update the draft quote
-- invalid model output is rejected safely
-- totals remain backend-controlled
+- [x] owner can chat against a quote
+- [x] assistant asks follow-up questions when needed
+- [x] assistant can update the draft quote
+- [x] invalid model output is rejected safely
+- [x] totals remain backend-controlled
 
 ### Phase 4 - Demo Polish
 

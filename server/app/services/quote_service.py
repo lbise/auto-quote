@@ -12,7 +12,7 @@ from app.services.settings_service import get_or_create_settings
 
 
 def _quote_query():
-    return select(Quote).options(selectinload(Quote.line_items))
+    return select(Quote).options(selectinload(Quote.line_items), selectinload(Quote.messages))
 
 
 def list_quotes(db: Session) -> list[Quote]:
@@ -58,7 +58,7 @@ def create_quote(db: Session, payload: QuoteCreate) -> Quote:
         customer_email=payload.customer_email,
         customer_phone=payload.customer_phone.strip(),
         customer_address=payload.customer_address.strip(),
-        locale=(payload.locale or settings.default_locale).strip(),
+        locale=(payload.locale or settings.default_locale).strip().lower(),
         title=payload.title.strip(),
         job_summary=payload.job_summary.strip(),
         assumptions=payload.assumptions.strip(),
@@ -85,6 +85,8 @@ def update_quote(db: Session, quote_id: int, payload: QuoteUpdate) -> Quote:
             value = value.strip()
         if field == "currency" and isinstance(value, str):
             value = value.upper()
+        if field == "locale" and isinstance(value, str):
+            value = value.lower()
         setattr(quote, field, value)
 
     if payload.line_items is not None:

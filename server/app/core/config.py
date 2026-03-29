@@ -18,6 +18,11 @@ class Settings(BaseSettings):
         alias="DATABASE_URL",
     )
     allowed_origins: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+    llm_mode: str = Field(default="auto", alias="LLM_MODE")
+    openai_api_key: str | None = Field(default=None, alias="OPENAI_API_KEY")
+    openai_model: str = Field(default="gpt-4.1-mini", alias="OPENAI_MODEL")
+    openai_base_url: str | None = Field(default=None, alias="OPENAI_BASE_URL")
+    llm_timeout_seconds: float = Field(default=30, alias="LLM_TIMEOUT_SECONDS")
 
     model_config = SettingsConfigDict(
         env_file=(ROOT_DIR / ".env"),

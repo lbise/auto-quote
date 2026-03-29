@@ -21,7 +21,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { getQuote, updateQuote, type Quote, type QuoteLineItem, type QuoteStatus } from "@/lib/api"
+import {
+  getQuote,
+  sendQuoteMessage,
+  updateQuote,
+  type Quote,
+  type QuoteLineItem,
+  type QuoteStatus,
+} from "@/lib/api"
 import { formatCurrency, formatDate, formatDateTime, formatPercent } from "@/lib/format"
 import { supportedLocales, type AppLocale } from "@/lib/locale"
 
@@ -68,8 +75,11 @@ function QuoteWorkspacePage() {
   const [form, setForm] = useState<QuoteFormState | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [isChatting, setIsChatting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [chatError, setChatError] = useState<string | null>(null)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
+  const [chatInput, setChatInput] = useState("")
 
   const loadQuote = useCallback(async (id: number) => {
     setIsLoading(true)
@@ -98,11 +108,13 @@ function QuoteWorkspacePage() {
 
   function updateField(field: keyof QuoteFormState, value: string) {
     setSavedMessage(null)
+    setChatError(null)
     setForm((current) => (current ? { ...current, [field]: value } : current))
   }
 
   function updateLineItem(index: number, field: keyof QuoteLineItemForm, value: string | boolean) {
     setSavedMessage(null)
+    setChatError(null)
     setForm((current) => {
       if (!current) {
         return current
@@ -120,6 +132,7 @@ function QuoteWorkspacePage() {
 
   function addLineItem() {
     setSavedMessage(null)
+    setChatError(null)
     setForm((current) =>
       current
         ? {
@@ -132,6 +145,7 @@ function QuoteWorkspacePage() {
 
   function removeLineItem(index: number) {
     setSavedMessage(null)
+    setChatError(null)
     setForm((current) => {
       if (!current) {
         return current
@@ -214,6 +228,39 @@ function QuoteWorkspacePage() {
     }
   }, [form])
 
+  const hasUnsavedChanges = useMemo(() => {
+    if (!quote || !form) {
+      return false
+    }
+
+    return JSON.stringify(form) !== JSON.stringify(toFormState(quote))
+  }, [form, quote])
+
+  async function handleChatSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!quote || !chatInput.trim() || hasUnsavedChanges) {
+      return
+    }
+
+    setIsChatting(true)
+    setChatError(null)
+
+    try {
+      const response = await sendQuoteMessage(quote.id, { message: chatInput.trim() })
+      setQuote(response.quote)
+      setForm(toFormState(response.quote))
+      setChatInput("")
+      setSavedMessage(
+        response.action === "update_quote" ? t("quote.footer.saved") : null
+      )
+    } catch (sendError) {
+      setChatError(toErrorMessage(sendError, t("quote.chat.errors.send")))
+    } finally {
+      setIsChatting(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex min-h-[32rem] items-center justify-center rounded-[2rem] border border-dashed border-border/70 bg-white/60">
@@ -275,37 +322,120 @@ function QuoteWorkspacePage() {
             </p>
           </CardHeader>
           <CardContent className="grid gap-3">
-            <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
-              <div className="flex items-center gap-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  {t("quote.lastSaved")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-foreground/85">
+                  {formatDateTime(quote.updated_at, locale)}
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                  {t("quote.validUntil")}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-foreground/85">
+                  {formatDate(form.valid_until, locale)}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-[1.5rem] border border-border/60 bg-background/70 p-4">
+              <div className="flex items-start gap-3">
                 <div className="flex size-10 items-center justify-center rounded-2xl bg-secondary text-foreground">
                   <RiChat3Line className="size-4" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">{t("quote.assistantTitle")}</p>
                   <p className="text-sm leading-6 text-muted-foreground">
-                    {t("quote.assistantDescription")}
+                    {hasUnsavedChanges ? t("quote.chat.hintSaveFirst") : t("quote.chat.hintReady")}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                {t("quote.lastSaved")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-foreground/85">
-                {formatDateTime(quote.updated_at, locale)}
-              </p>
+            <div className="grid max-h-[26rem] gap-3 overflow-y-auto rounded-[1.5rem] border border-border/60 bg-background/55 p-4">
+              {quote.messages.length === 0 ? (
+                <div className="flex min-h-40 flex-col items-center justify-center gap-3 rounded-[1.25rem] border border-dashed border-border/70 bg-white/55 px-5 py-6 text-center">
+                  <p className="font-heading text-xl font-semibold tracking-tight">
+                    {t("quote.chat.emptyTitle")}
+                  </p>
+                  <p className="text-sm leading-6 text-muted-foreground">
+                    {t("quote.chat.emptyDescription")}
+                  </p>
+                </div>
+              ) : (
+                quote.messages.map((message) => {
+                  const isAssistant = message.role === "assistant"
+
+                  return (
+                    <div
+                      key={message.id}
+                      className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}
+                    >
+                      <div
+                        className={[
+                          "max-w-[92%] rounded-[1.4rem] border px-4 py-3 shadow-sm",
+                          isAssistant
+                            ? "border-border/60 bg-white/80 text-foreground"
+                            : "ml-auto border-primary/20 bg-primary text-primary-foreground",
+                        ].join(" ")}
+                      >
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge
+                            variant="outline"
+                            className={isAssistant ? "bg-background/70" : "border-white/25 bg-white/10 text-primary-foreground"}
+                          >
+                            {isAssistant ? t("quote.chat.roles.assistant") : t("quote.chat.roles.owner")}
+                          </Badge>
+                          {message.assistant_action ? (
+                            <Badge variant="outline" className="bg-background/70">
+                              {t(`quote.chat.actions.${message.assistant_action}`)}
+                            </Badge>
+                          ) : null}
+                        </div>
+
+                        <p className="mt-3 whitespace-pre-wrap text-sm leading-6">
+                          {message.content}
+                        </p>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                {t("quote.validUntil")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-foreground/85">
-                {formatDate(form.valid_until, locale)}
-              </p>
-            </div>
+            <form className="grid gap-3" onSubmit={handleChatSubmit}>
+              <Textarea
+                value={chatInput}
+                onChange={(event) => setChatInput(event.target.value)}
+                placeholder={t("quote.chat.inputPlaceholder")}
+                className="min-h-32 bg-white/80"
+              />
+
+              {chatError ? (
+                <div className="rounded-2xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+                  {chatError}
+                </div>
+              ) : null}
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+                  {hasUnsavedChanges ? t("quote.chat.hintSaveFirst") : t("quote.chat.hintReady")}
+                </p>
+
+                <Button
+                  type="submit"
+                  className="h-11 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20"
+                  disabled={isChatting || !chatInput.trim() || hasUnsavedChanges || isSaving}
+                >
+                  {isChatting ? <RiLoader4Line className="size-4 animate-spin" /> : <RiChat3Line className="size-4" />}
+                  {isChatting ? t("quote.chat.sending") : t("quote.chat.send")}
+                </Button>
+              </div>
+            </form>
           </CardContent>
         </Card>
 

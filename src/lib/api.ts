@@ -55,8 +55,17 @@ export type Quote = {
   pricing_complete: boolean
   valid_until: string
   line_items: QuoteLineItem[]
+  messages: QuoteMessage[]
   created_at: string
   updated_at: string
+}
+
+export type QuoteMessage = {
+  id: number
+  role: "user" | "assistant" | "system"
+  content: string
+  assistant_action: "ask_question" | "update_quote" | null
+  created_at: string
 }
 
 export type QuoteListItem = {
@@ -117,6 +126,16 @@ export type UpdateQuotePayload = Partial<
   }
 >
 
+export type QuoteChatPayload = {
+  message: string
+}
+
+export type QuoteChatResponse = {
+  action: "ask_question" | "update_quote"
+  assistant_message: string
+  quote: Quote
+}
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ""
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -176,6 +195,13 @@ export function getQuote(quoteId: number): Promise<Quote> {
 export function updateQuote(quoteId: number, payload: UpdateQuotePayload): Promise<Quote> {
   return request<Quote>(`/api/quotes/${quoteId}`, {
     method: "PATCH",
+    body: JSON.stringify(payload),
+  })
+}
+
+export function sendQuoteMessage(quoteId: number, payload: QuoteChatPayload): Promise<QuoteChatResponse> {
+  return request<QuoteChatResponse>(`/api/quotes/${quoteId}/chat`, {
+    method: "POST",
     body: JSON.stringify(payload),
   })
 }

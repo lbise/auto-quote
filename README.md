@@ -46,6 +46,7 @@ The backend runs on `http://127.0.0.1:8000` and exposes:
 - `POST /api/quotes`
 - `GET /api/quotes/{id}`
 - `PATCH /api/quotes/{id}`
+- `POST /api/quotes/{id}/chat`
 
 The SQLite database file is created at `data/app.db`.
 
@@ -60,6 +61,20 @@ Language support currently includes:
 - French UI by default
 - English and French interface translations
 - a per-quote language field for the upcoming assistant flow
+
+Assistant support currently includes:
+
+- stored quote conversation history
+- a chat panel inside the quote workspace
+- automatic draft updates from a validated assistant response
+- `LLM_MODE=auto` fallback to a local mock assistant when no API key is configured
+
+Optional real LLM environment variables:
+
+- `LLM_MODE=auto` or `LLM_MODE=openai`
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL` (defaults to `gpt-4.1-mini`)
+- `OPENAI_BASE_URL` for OpenAI-compatible providers
 
 ## Build the app
 

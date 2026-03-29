@@ -2,7 +2,9 @@ from fastapi import APIRouter, Body, Depends, status
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
+from app.schemas.chat import QuoteChatRequest, QuoteChatResponse
 from app.schemas.quotes import QuoteCreate, QuoteListItem, QuoteRead, QuoteUpdate
+from app.services.chat_service import handle_quote_chat
 from app.services.quote_service import create_quote, get_quote, list_quotes, update_quote
 
 
@@ -54,3 +56,17 @@ def patch_quote(
 ) -> QuoteRead:
     quote = update_quote(db, quote_id, payload)
     return QuoteRead.model_validate(quote)
+
+
+@router.post("/{quote_id}/chat", response_model=QuoteChatResponse)
+def chat_on_quote(
+    quote_id: int,
+    payload: QuoteChatRequest,
+    db: Session = Depends(get_db),
+) -> QuoteChatResponse:
+    assistant_reply, quote = handle_quote_chat(db, quote_id, payload)
+    return QuoteChatResponse(
+        action=assistant_reply.action,
+        assistant_message=assistant_reply.assistant_message,
+        quote=quote,
+    )

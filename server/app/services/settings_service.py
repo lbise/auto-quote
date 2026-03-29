@@ -19,6 +19,8 @@ def update_settings(db: Session, payload: SettingsUpdate) -> AppSettings:
     updates = payload.model_dump(exclude_unset=True)
 
     for field, value in updates.items():
+        if field == "default_locale" and isinstance(value, str):
+            value = value.lower()
         setattr(settings, field, value)
 
     db.add(settings)

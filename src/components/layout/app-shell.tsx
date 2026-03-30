@@ -68,7 +68,7 @@ function AppShell({ children }: { children: ReactNode }) {
       <div className="absolute inset-y-20 right-0 w-72 rounded-full bg-[radial-gradient(circle,rgba(83,183,156,0.18),transparent_65%)] blur-3xl" />
 
       <div className="relative mx-auto flex min-h-svh max-w-7xl flex-col px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/50 pb-6">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/50 pb-6" data-print-hidden="true">
           <div className="flex items-center gap-3">
             <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <RiSparkling2Line className="size-5" />

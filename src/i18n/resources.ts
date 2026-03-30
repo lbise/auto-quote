@@ -3,7 +3,7 @@ export const resources = {
     translation: {
       app: {
         brandSubtitle: "PoC FastAPI et SQLite pour générer des devis plus vite",
-        phase2InProgress: "Phase 2 en cours",
+        phase2InProgress: "Phase 4 en cours",
         navigation: {
           dashboard: "Tableau de bord",
           settings: "Paramètres",
@@ -31,7 +31,7 @@ export const resources = {
         eyebrow: "Tableau de bord devis",
         title: "Créez, reprenez et structurez les brouillons avant que l'assistant commence à écrire.",
         description:
-          "La phase 2 transforme la base des paramètres en vrais devis, un espace de travail vivant et des totaux déterministes sur lesquels l'assistant pourra s'appuyer.",
+          "Le produit couvre maintenant les brouillons, l'espace de travail et le chat LLM. Cette phase ajoute la revue visuelle, les signaux \"à revoir\" et un flux d'impression plus crédible pour les démos.",
         newQuote: "Nouveau devis",
         creatingDraft: "Création du brouillon...",
         reviewDefaults: "Voir les paramètres",
@@ -170,9 +170,9 @@ export const resources = {
         openErrorTitle: "Impossible d'ouvrir le devis",
         backToDashboard: "Retour au tableau de bord",
         workspaceShell: "Structure de l'espace",
-        assistantTitle: "Le panneau assistant arrive ensuite",
+        assistantTitle: "Assistant de devis",
         assistantDescription:
-          "La prochaine phase permettra au gérant de discuter ici et d'appliquer des mises à jour structurées au brouillon à droite.",
+          "Discutez ici avec le vrai modèle pour enrichir le brouillon et appliquer des mises à jour structurées au devis.",
         lastSaved: "Dernière sauvegarde",
         validUntil: "Valide jusqu'au",
         totalsPreview: "Aperçu des totaux",
@@ -310,6 +310,7 @@ export const resources = {
           addLineItem: "Ajouter une ligne",
           remove: "Supprimer",
           reload: "Recharger",
+          print: "Imprimer",
         },
         lineItems: {
           emptyTitle: "Aucune ligne pour l'instant",
@@ -317,6 +318,34 @@ export const resources = {
             "Ajoutez au moins une ligne chiffrée pour calculer les totaux et faire avancer le devis.",
           needsReview: "À revoir",
           lineTotalPreview: "Aperçu du total de ligne",
+        },
+        review: {
+          title: "Revue avant impression",
+          readyToPrint: "Le devis peut être imprimé tel quel.",
+          needsAttention_one: "{{count}} ligne demande encore une vérification.",
+          needsAttention_other: "{{count}} lignes demandent encore une vérification.",
+          printHint: "L'impression utilise le dernier devis enregistré et affiche les éléments à revoir.",
+          saveBeforePrint: "Enregistrez les dernières modifications avant d'imprimer pour garder les totaux backend comme source de vérité.",
+          untitledLineItem: "Ligne {{index}} sans titre",
+          reasons: {
+            missingPrice: "Aucun prix unitaire n'est encore défini.",
+            markedForReview: "La ligne est explicitement marquée à revoir.",
+          },
+        },
+        print: {
+          from: "Émis par",
+          preparedFor: "Préparé pour",
+          issuedOn: "Créé le",
+          quantity: "Qté",
+          unitPrice: "Prix unitaire",
+          lineTotal: "Total ligne",
+          assumptions: "Hypothèses",
+          paymentTerms: "Conditions de paiement",
+          internalNotes: "Notes internes",
+          notPriced: "À chiffrer",
+          reviewNoticeTitle: "Tarification incomplète",
+          reviewNoticeDescription_one: "Une ligne doit encore être revue ou chiffrée avant l'envoi final.",
+          reviewNoticeDescription_other: "{{count}} lignes doivent encore être revues ou chiffrées avant l'envoi final.",
         },
         footer: {
           saved: "Le devis est enregistré. Les totaux backend sont à jour.",
@@ -330,7 +359,7 @@ export const resources = {
     translation: {
       app: {
         brandSubtitle: "FastAPI and SQLite PoC for faster quote drafting",
-        phase2InProgress: "Phase 2 in progress",
+        phase2InProgress: "Phase 4 in progress",
         navigation: {
           dashboard: "Dashboard",
           settings: "Settings",
@@ -358,7 +387,7 @@ export const resources = {
         eyebrow: "Quote dashboard",
         title: "Create, revisit, and shape quote drafts before the assistant starts writing.",
         description:
-          "Phase 2 turns the settings foundation into real quote records, a live workspace, and deterministic totals the future chat assistant can build on.",
+          "The product now covers drafts, the live workspace, and LLM chat. This phase adds visible review states, clearer needs-review signals, and a print flow that feels demo-ready.",
         newQuote: "New quote",
         creatingDraft: "Creating draft...",
         reviewDefaults: "Review defaults",
@@ -497,9 +526,9 @@ export const resources = {
         openErrorTitle: "Could not open quote",
         backToDashboard: "Back to dashboard",
         workspaceShell: "Workspace shell",
-        assistantTitle: "Assistant panel arrives next",
+        assistantTitle: "Quote assistant",
         assistantDescription:
-          "The next phase will let the owner chat here and apply structured updates into the draft on the right.",
+          "Chat here with the real model to enrich the draft and apply structured quote updates.",
         lastSaved: "Last saved",
         validUntil: "Valid until",
         totalsPreview: "Totals preview",
@@ -637,6 +666,7 @@ export const resources = {
           addLineItem: "Add line item",
           remove: "Remove",
           reload: "Reload",
+          print: "Print",
         },
         lineItems: {
           emptyTitle: "No line items yet",
@@ -644,6 +674,34 @@ export const resources = {
             "Add at least one priced line item so totals can be calculated and the quote can move forward.",
           needsReview: "Needs review",
           lineTotalPreview: "Line total preview",
+        },
+        review: {
+          title: "Review before print",
+          readyToPrint: "This quote is ready to print as-is.",
+          needsAttention_one: "{{count}} line item still needs review.",
+          needsAttention_other: "{{count}} line items still need review.",
+          printHint: "Printing uses the latest saved quote and keeps any review flags visible.",
+          saveBeforePrint: "Save your latest edits before printing so backend totals remain the source of truth.",
+          untitledLineItem: "Untitled line item {{index}}",
+          reasons: {
+            missingPrice: "No unit price has been set yet.",
+            markedForReview: "This line item is explicitly marked for review.",
+          },
+        },
+        print: {
+          from: "Issued by",
+          preparedFor: "Prepared for",
+          issuedOn: "Created on",
+          quantity: "Qty",
+          unitPrice: "Unit price",
+          lineTotal: "Line total",
+          assumptions: "Assumptions",
+          paymentTerms: "Payment terms",
+          internalNotes: "Internal notes",
+          notPriced: "Needs pricing",
+          reviewNoticeTitle: "Incomplete pricing",
+          reviewNoticeDescription_one: "One line item still needs review or pricing before final send.",
+          reviewNoticeDescription_other: "{{count}} line items still need review or pricing before final send.",
         },
         footer: {
           saved: "Quote saved. Backend totals are now up to date.",

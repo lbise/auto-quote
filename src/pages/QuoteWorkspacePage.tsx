@@ -5,9 +5,11 @@ import {
   RiChat3Line,
   RiCheckLine,
   RiDeleteBinLine,
+  RiErrorWarningLine,
   RiFileTextLine,
   RiLoader4Line,
   RiMoneyDollarCircleLine,
+  RiPrinterLine,
   RiSaveLine,
   RiStickyNoteLine,
   RiUserLine,
@@ -15,6 +17,7 @@ import {
 import { useTranslation } from "react-i18next"
 import { Link, useParams } from "react-router-dom"
 
+import { QuotePrintSheet } from "@/components/quotes/quote-print-sheet"
 import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -23,8 +26,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
   getQuote,
+  getSettings,
   sendQuoteMessage,
   updateQuote,
+  type BusinessSettings,
   type Quote,
   type QuoteLineItem,
   type QuoteStatus,
@@ -80,6 +85,7 @@ function QuoteWorkspacePage() {
   const [chatError, setChatError] = useState<string | null>(null)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
   const [chatInput, setChatInput] = useState("")
+  const [businessSettings, setBusinessSettings] = useState<BusinessSettings | null>(null)
 
   const loadQuote = useCallback(async (id: number) => {
     setIsLoading(true)
@@ -105,6 +111,22 @@ function QuoteWorkspacePage() {
 
     void loadQuote(Number(quoteId))
   }, [loadQuote, quoteId, t])
+
+  useEffect(() => {
+    let active = true
+
+    void getSettings()
+      .then((response) => {
+        if (active) {
+          setBusinessSettings(response)
+        }
+      })
+      .catch(() => undefined)
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   function updateField(field: keyof QuoteFormState, value: string) {
     setSavedMessage(null)
@@ -261,6 +283,10 @@ function QuoteWorkspacePage() {
     }
   }
 
+  function handlePrint() {
+    window.print()
+  }
+
   if (isLoading) {
     return (
       <div className="flex min-h-[32rem] items-center justify-center rounded-[2rem] border border-dashed border-border/70 bg-white/60">
@@ -297,9 +323,27 @@ function QuoteWorkspacePage() {
     return null
   }
 
+  const reviewItems = form.line_items
+    .map((item, index) => {
+      const missingPrice = parseMoneyToCents(item.unit_price) === null
+      const flagged = item.needs_review || missingPrice
+
+      if (!flagged) {
+        return null
+      }
+
+      return {
+        key: `${index}-${item.description}`,
+        label: item.description.trim() || t("quote.review.untitledLineItem", { index: index + 1 }),
+        reason: missingPrice ? t("quote.review.reasons.missingPrice") : t("quote.review.reasons.markedForReview"),
+      }
+    })
+    .filter((item): item is { key: string; label: string; reason: string } => item !== null)
+
   return (
-    <div className="grid gap-6 xl:grid-cols-[0.72fr_1.28fr]">
-      <div className="grid gap-6 xl:sticky xl:top-8 xl:self-start">
+    <>
+      <div className="grid gap-6 xl:grid-cols-[0.72fr_1.28fr]" data-print-hidden="true">
+        <div className="grid gap-6 xl:sticky xl:top-8 xl:self-start">
         <Card className="border-white/60 bg-white/75">
           <CardHeader className="gap-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -455,6 +499,65 @@ function QuoteWorkspacePage() {
             </div>
           </CardContent>
         </Card>
+
+        <Card className="border-white/60 bg-white/75">
+          <CardHeader>
+            <CardTitle>{t("quote.review.title")}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <div
+              className={[
+                "rounded-[1.5rem] border px-4 py-4 text-sm leading-6",
+                reviewItems.length > 0
+                  ? "border-amber-200 bg-amber-50 text-amber-950"
+                  : "border-emerald-200 bg-emerald-50 text-emerald-900",
+              ].join(" ")}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={[
+                    "mt-0.5 flex size-10 items-center justify-center rounded-2xl",
+                    reviewItems.length > 0 ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700",
+                  ].join(" ")}
+                >
+                  <RiErrorWarningLine className="size-4" />
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {reviewItems.length > 0
+                      ? t("quote.review.needsAttention", { count: reviewItems.length })
+                      : t("quote.review.readyToPrint")}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 opacity-85">
+                    {hasUnsavedChanges ? t("quote.review.saveBeforePrint") : t("quote.review.printHint")}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {reviewItems.length > 0 ? (
+              <div className="grid gap-3">
+                {reviewItems.map((item) => (
+                  <div key={item.key} className="rounded-2xl border border-amber-200 bg-white px-4 py-3">
+                    <p className="font-medium text-foreground">{item.label}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{item.reason}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            <Button
+              type="button"
+              variant="outline"
+              className="h-11 rounded-full px-5 text-sm"
+              onClick={handlePrint}
+              disabled={hasUnsavedChanges || isSaving || isChatting}
+            >
+              <RiPrinterLine className="size-4" />
+              {t("quote.actions.print")}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <Card className="border-white/60 bg-white/75">
@@ -473,6 +576,16 @@ function QuoteWorkspacePage() {
                   <RiArrowLeftLine className="size-4" />
                   {t("quote.back")}
                 </Link>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 rounded-full px-4 text-sm"
+                onClick={handlePrint}
+                disabled={hasUnsavedChanges || isSaving || isChatting}
+              >
+                <RiPrinterLine className="size-4" />
+                {t("quote.actions.print")}
               </Button>
               <Button
                 type="submit"
@@ -640,7 +753,15 @@ function QuoteWorkspacePage() {
               ) : (
                 <div className="grid gap-4">
                   {form.line_items.map((item, index) => (
-                    <div key={`line-item-${index}`} className="rounded-[1.5rem] border border-border/60 bg-white/70 p-4">
+                    <div
+                      key={`line-item-${index}`}
+                      className={[
+                        "rounded-[1.5rem] border bg-white/70 p-4",
+                        item.needs_review || parseMoneyToCents(item.unit_price) === null
+                          ? "border-amber-200 bg-amber-50/70"
+                          : "border-border/60",
+                      ].join(" ")}
+                    >
                       <div className="grid gap-4 md:grid-cols-[minmax(0,1.4fr)_0.55fr_0.55fr_0.7fr_auto]">
                         <FieldBlock label={t("quote.fields.description.label")} hint={t("quote.fields.description.hint")}>
                           <Input
@@ -685,15 +806,30 @@ function QuoteWorkspacePage() {
                       </div>
 
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4">
-                        <label className="inline-flex items-center gap-3 text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={item.needs_review}
-                            onChange={(event) => updateLineItem(index, "needs_review", event.target.checked)}
-                            className="size-4 rounded border-border text-primary focus:ring-primary"
-                          />
-                          {t("quote.lineItems.needsReview")}
-                        </label>
+                        <div className="grid gap-2">
+                          <label className="inline-flex items-center gap-3 text-sm text-foreground">
+                            <input
+                              type="checkbox"
+                              checked={item.needs_review}
+                              onChange={(event) => updateLineItem(index, "needs_review", event.target.checked)}
+                              className="size-4 rounded border-border text-primary focus:ring-primary"
+                            />
+                            {t("quote.lineItems.needsReview")}
+                          </label>
+
+                          {item.needs_review || parseMoneyToCents(item.unit_price) === null ? (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="outline" className="border-amber-200 bg-amber-100 text-amber-800">
+                                {t("quote.lineItems.needsReview")}
+                              </Badge>
+                              <p className="text-sm text-muted-foreground">
+                                {parseMoneyToCents(item.unit_price) === null
+                                  ? t("quote.review.reasons.missingPrice")
+                                  : t("quote.review.reasons.markedForReview")}
+                              </p>
+                            </div>
+                          ) : null}
+                        </div>
 
                         <div className="text-right">
                           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -725,6 +861,16 @@ function QuoteWorkspacePage() {
                   <RiLoader4Line className={isLoading ? "size-4 animate-spin" : "size-4"} />
                   {t("quote.actions.reload")}
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 rounded-full px-5 text-sm"
+                  onClick={handlePrint}
+                  disabled={hasUnsavedChanges || isSaving || isChatting}
+                >
+                  <RiPrinterLine className="size-4" />
+                  {t("quote.actions.print")}
+                </Button>
                 <Button type="submit" className="h-11 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20" disabled={isSaving}>
                   {isSaving ? <RiLoader4Line className="size-4 animate-spin" /> : <RiCheckLine className="size-4" />}
                   {isSaving ? t("quote.savingQuote") : t("quote.saveQuote")}
@@ -740,7 +886,10 @@ function QuoteWorkspacePage() {
           </form>
         </CardContent>
       </Card>
-    </div>
+      </div>
+
+      <QuotePrintSheet quote={quote} settings={businessSettings} locale={locale} />
+    </>
   )
 }
 

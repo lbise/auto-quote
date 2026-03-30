@@ -160,3 +160,31 @@
     min-height: 100svh;
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+    min-height: auto;
+  }
+
+  body::before {
+    display: none;
+  }
+
+  [data-print-hidden="true"] {
+    display: none !important;
+  }
+
+  .print-sheet {
+    display: block !important;
+  }
+
+  #root,
+  main {
+    min-height: auto;
+  }
+
+  @page {
+    margin: 16mm;
+  }
+}

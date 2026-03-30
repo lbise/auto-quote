@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session
 from app.models.quote_message import QuoteMessage
 from app.schemas.chat import AssistantReply, QuoteChatRequest
 from app.schemas.quotes import QuoteRead, QuoteUpdate
-from app.services.llm_service import generate_assistant_reply
+from app.services.llm_service import (
+    LLMConfigurationError,
+    LLMProviderError,
+    LLMResponseError,
+    generate_assistant_reply,
+)
 from app.services.quote_service import get_quote, update_quote
 from app.services.settings_service import get_or_create_settings
 
@@ -40,8 +45,6 @@ def handle_quote_chat(db: Session, quote_id: int, payload: QuoteChatRequest) -> 
     if not message_text:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Message cannot be empty")
 
-    add_quote_message(db, quote_id=quote_id, role="user", content=message_text)
-
     quote = get_quote(db, quote_id)
     settings = get_or_create_settings(db)
     conversation = [
@@ -50,13 +53,31 @@ def handle_quote_chat(db: Session, quote_id: int, payload: QuoteChatRequest) -> 
             "content": message.content,
         }
         for message in quote.messages
-    ]
+    ] + [{"role": "user", "content": message_text}]
 
-    assistant_reply = generate_assistant_reply(
-        quote=quote,
-        business_settings=settings,
-        conversation=conversation,
-    )
+    try:
+        assistant_reply = generate_assistant_reply(
+            quote=quote,
+            business_settings=settings,
+            conversation=conversation,
+        )
+    except LLMConfigurationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(exc),
+        ) from exc
+    except LLMProviderError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        ) from exc
+    except LLMResponseError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        ) from exc
+
+    add_quote_message(db, quote_id=quote_id, role="user", content=message_text)
 
     quote_patch_json = (
         assistant_reply.quote_patch.model_dump(exclude_unset=True)

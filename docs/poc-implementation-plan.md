@@ -21,6 +21,7 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 - [x] Added manual quote editing for customer details, scope, and line items
 - [x] Added English/French UI foundations with French as the default locale
 - [x] Added quote chat persistence and a first assistant workflow for the workspace
+- [x] Deployed the full-stack app on SwiftWave with persistent SQLite storage
 
 ### Current Milestone Checklist
 
@@ -30,9 +31,9 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 - [x] Add quote CRUD API
 - [x] Add quote workspace UI
 - [x] Add deterministic quote total calculation
-- [ ] Add LLM chat endpoint with schema validation
+- [x] Add LLM chat endpoint with schema validation
 - [ ] Add quote review and print flow
-- [ ] Deploy PoC to VPS with persistent SQLite storage
+- [x] Deploy PoC to VPS with persistent SQLite storage
 
 ## Success Criteria
 
@@ -49,7 +50,7 @@ The PoC is successful if all of the following are true:
 - Internal-only tool for demos and early validation
 - Single business
 - Single owner or shared internal access
-- English only
+- French and English UI support
 - SQLite on one VPS
 - No over-engineering before validation
 
@@ -570,19 +571,19 @@ Acceptance criteria:
 
 Tasks:
 
-- [ ] update Docker build to include Python backend and built frontend
-- [ ] serve `dist/` from FastAPI in production
-- [ ] mount SQLite file as a volume
-- [ ] add environment variables
+- [x] update Docker build to include Python backend and built frontend
+- [x] serve `dist/` from FastAPI in production
+- [x] mount SQLite file as a volume
+- [x] add environment variables
 - [ ] add reverse proxy or simple password protection
 - [ ] add DB backup plan
 
 Acceptance criteria:
 
-- app runs on one VPS
-- data survives container restarts
-- app is behind HTTPS and password protection
-- backup procedure is documented and tested
+- [x] app runs on one VPS
+- [x] data survives container restarts
+- [ ] app is behind HTTPS and password protection
+- [ ] backup procedure is documented and tested
 
 ## Deployment Defaults
 

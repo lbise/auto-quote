@@ -1,8 +1,10 @@
+import base64
+import secrets
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes.health import router as health_router
@@ -25,6 +27,35 @@ app.add_middleware(
 app.include_router(health_router, prefix="/api")
 app.include_router(quotes_router, prefix="/api")
 app.include_router(settings_router, prefix="/api")
+
+
+@app.middleware("http")
+async def require_basic_auth(request: Request, call_next):
+    if not settings.app_password:
+        return await call_next(request)
+
+    if request.method == "OPTIONS" or request.url.path == "/api/health":
+        return await call_next(request)
+
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.startswith("Basic "):
+        try:
+            decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
+            username, password = decoded.split(":", 1)
+        except (ValueError, UnicodeDecodeError, base64.binascii.Error):
+            username = ""
+            password = ""
+
+        if secrets.compare_digest(username, settings.app_username) and secrets.compare_digest(
+            password, settings.app_password
+        ):
+            return await call_next(request)
+
+    return PlainTextResponse(
+        "Authentication required",
+        status_code=401,
+        headers={"WWW-Authenticate": 'Basic realm="AutoQuote"'},
+    )
 
 
 if frontend_dist_dir.exists():

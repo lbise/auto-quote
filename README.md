@@ -67,14 +67,16 @@ Assistant support currently includes:
 - stored quote conversation history
 - a chat panel inside the quote workspace
 - automatic draft updates from a validated assistant response
-- `LLM_MODE=auto` fallback to a local mock assistant when no API key is configured
+- no mock fallback; chat only uses a real configured model
 
-Optional real LLM environment variables:
+Gemini via the OpenAI-compatible endpoint:
 
-- `LLM_MODE=auto` or `LLM_MODE=openai`
+- `LLM_MODE=openai`
 - `OPENAI_API_KEY`
-- `OPENAI_MODEL` (defaults to `gpt-4.1-mini`)
-- `OPENAI_BASE_URL` for OpenAI-compatible providers
+- `OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`
+- `OPENAI_MODEL=gemini-2.5-flash`
+
+If chat is not configured correctly or the upstream model fails, the workspace now shows the backend error clearly instead of falling back to fake assistant replies.
 
 ## Build the app
 

@@ -1,20 +1,37 @@
 from __future__ import annotations
 
 import json
-import re
+import logging
 from functools import lru_cache
-from pathlib import Path
 from typing import Any
 from urllib import error, request
+
+from pydantic import ValidationError
 
 from app.core.config import ROOT_DIR, get_settings
 from app.models.quote import Quote
 from app.models.settings import AppSettings
 from app.schemas.chat import AssistantReply
-from app.schemas.quotes import QuoteUpdate
 
 
+logger = logging.getLogger(__name__)
 PROMPT_PATH = ROOT_DIR / "server" / "app" / "prompts" / "quote_assistant.md"
+
+
+class LLMError(RuntimeError):
+    pass
+
+
+class LLMConfigurationError(LLMError):
+    pass
+
+
+class LLMProviderError(LLMError):
+    pass
+
+
+class LLMResponseError(LLMError):
+    pass
 
 
 @lru_cache
@@ -31,14 +48,17 @@ def generate_assistant_reply(
     settings = get_settings()
     mode = settings.llm_mode.lower()
 
-    if mode == "openai" or (mode == "auto" and settings.openai_api_key):
-        return _generate_openai_reply(
-            quote=quote,
-            business_settings=business_settings,
-            conversation=conversation,
+    if mode not in {"openai", "auto"}:
+        raise LLMConfigurationError(
+            f"Unsupported LLM_MODE '{settings.llm_mode}'. Use 'openai' for Gemini's OpenAI-compatible API."
         )
 
-    return _generate_mock_reply(
+    if not settings.openai_api_key:
+        raise LLMConfigurationError(
+            "LLM is not configured. Set OPENAI_API_KEY, OPENAI_BASE_URL, and OPENAI_MODEL before using chat."
+        )
+
+    return _generate_openai_reply(
         quote=quote,
         business_settings=business_settings,
         conversation=conversation,
@@ -52,8 +72,6 @@ def _generate_openai_reply(
     conversation: list[dict[str, Any]],
 ) -> AssistantReply:
     settings = get_settings()
-    if not settings.openai_api_key:
-        raise RuntimeError("OPENAI_API_KEY is required when llm_mode is set to openai.")
 
     payload = {
         "model": settings.openai_model,
@@ -83,8 +101,17 @@ def _generate_openai_reply(
     }
 
     base_url = (settings.openai_base_url or "https://api.openai.com/v1").rstrip("/")
+
+    if "generativelanguage.googleapis.com" in base_url and (
+        "/models/" in base_url or ":generateContent" in base_url
+    ):
+        raise LLMConfigurationError(
+            "Gemini OpenAI-compatible mode expects OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai"
+        )
+
+    endpoint = f"{base_url}/chat/completions"
     req = request.Request(
-        url=f"{base_url}/chat/completions",
+        url=endpoint,
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Authorization": f"Bearer {settings.openai_api_key}",
@@ -96,145 +123,81 @@ def _generate_openai_reply(
     try:
         with request.urlopen(req, timeout=settings.llm_timeout_seconds) as response:
             data = json.loads(response.read().decode("utf-8"))
-    except error.HTTPError as exc:  # pragma: no cover - network error path
+    except error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="ignore")
-        raise RuntimeError(f"OpenAI request failed: {detail or exc.reason}") from exc
-    except error.URLError as exc:  # pragma: no cover - network error path
-        raise RuntimeError(f"OpenAI request failed: {exc.reason}") from exc
-
-    content = data["choices"][0]["message"]["content"]
-    return AssistantReply.model_validate(json.loads(content))
-
-
-def _generate_mock_reply(
-    *,
-    quote: Quote,
-    business_settings: AppSettings,
-    conversation: list[dict[str, Any]],
-) -> AssistantReply:
-    locale = quote.locale or business_settings.default_locale or "fr"
-    latest_user_message = next(
-        (message["content"] for message in reversed(conversation) if message["role"] == "user"),
-        "",
-    ).strip()
-
-    patch_data: dict[str, Any] = {}
-
-    if latest_user_message:
-        customer_fields = _extract_customer_fields(latest_user_message, locale)
-        if customer_fields and not quote.customer_name and not quote.customer_company:
-            patch_data.update(customer_fields)
-
-        if not quote.title:
-            patch_data["title"] = _build_title(latest_user_message, locale)
-
-        if not quote.job_summary:
-            patch_data["job_summary"] = latest_user_message
-
-        if not quote.line_items:
-            patch_data["line_items"] = [
-                {
-                    "description": _build_line_item_description(latest_user_message, locale),
-                    "quantity": 1,
-                    "unit": "forfait" if locale == "fr" else "job",
-                    "unit_price_cents": None,
-                    "needs_review": True,
-                    "source": "ai",
-                }
-            ]
-
-        price_cents = _extract_money_cents(latest_user_message)
-        if price_cents is not None and quote.line_items and any(
-            item.unit_price_cents is None or item.needs_review for item in quote.line_items
-        ):
-            patch_data["line_items"] = [
-                {
-                    "description": item.description,
-                    "quantity": float(item.quantity),
-                    "unit": item.unit,
-                    "unit_price_cents": price_cents if index == 0 else item.unit_price_cents,
-                    "needs_review": False if index == 0 else item.needs_review,
-                    "source": item.source,
-                }
-                for index, item in enumerate(quote.line_items)
-            ]
-
-    customer_missing_after_patch = not (
-        quote.customer_name
-        or quote.customer_company
-        or patch_data.get("customer_name")
-        or patch_data.get("customer_company")
-    )
-
-    if customer_missing_after_patch:
-        if patch_data:
-            return AssistantReply(
-                action="update_quote",
-                assistant_message=(
-                    "J'ai préparé une première structure du devis et laissé le prix à revoir. Quel nom de client ou d'entreprise dois-je afficher ?"
-                    if locale == "fr"
-                    else "I drafted the first quote structure and left pricing for review. What customer or company name should appear on the quote?"
-                ),
-                quote_patch=QuoteUpdate.model_validate(patch_data),
-            )
-
-        return AssistantReply(
-            action="ask_question",
-            assistant_message=(
-                "Quel nom de client ou d'entreprise doit apparaître sur le devis ?"
-                if locale == "fr"
-                else "What customer or company name should appear on the quote?"
-            ),
+        logger.warning(
+            "LLM provider HTTP error model=%s endpoint=%s status=%s body=%s",
+            settings.openai_model,
+            endpoint,
+            exc.code,
+            detail[:1000],
         )
-
-    if patch_data:
-        patched_line_items = patch_data.get("line_items")
-        current_pricing_incomplete = any(
-            item.unit_price_cents is None or item.needs_review for item in quote.line_items
+        raise LLMProviderError(
+            f"LLM provider request failed with status {exc.code}. Check OPENAI_BASE_URL, OPENAI_MODEL, and your API key."
+        ) from exc
+    except error.URLError as exc:
+        logger.warning(
+            "LLM provider network error model=%s endpoint=%s reason=%s",
+            settings.openai_model,
+            endpoint,
+            exc.reason,
         )
-        pricing_still_incomplete = bool(
-            patched_line_items
-            and any(
-                item.get("unit_price_cents") is None or item.get("needs_review")
-                for item in patched_line_items
-            )
-        ) or (not patched_line_items and current_pricing_incomplete)
-
-        return AssistantReply(
-            action="update_quote",
-            assistant_message=(
-                "J'ai mis à jour le brouillon et laissé le prix à revoir. Quel montant dois-je utiliser pour cette prestation principale ?"
-                if locale == "fr" and pricing_still_incomplete
-                else "J'ai mis à jour le brouillon. Dites-moi le prochain détail à ajouter."
-                if locale == "fr"
-                else "I updated the draft and left pricing for review. What amount should I use for the main service line?"
-                if pricing_still_incomplete
-                else "I updated the draft. Tell me the next detail you want to add."
-            ),
-            quote_patch=QuoteUpdate.model_validate(patch_data),
+        raise LLMProviderError(
+            "LLM provider request failed. Check network access and OPENAI_BASE_URL."
+        ) from exc
+    except TimeoutError as exc:
+        logger.warning(
+            "LLM provider timeout model=%s endpoint=%s timeout=%s",
+            settings.openai_model,
+            endpoint,
+            settings.llm_timeout_seconds,
         )
+        raise LLMProviderError(
+            "LLM provider request timed out. Try again or increase LLM_TIMEOUT_SECONDS."
+        ) from exc
 
-    if quote.line_items and any(item.unit_price_cents is None or item.needs_review for item in quote.line_items):
-        line_label = quote.line_items[0].description or (
-            "la prestation principale" if locale == "fr" else "the main service"
+    try:
+        content = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError) as exc:
+        logger.warning(
+            "LLM response missing content model=%s payload=%s",
+            settings.openai_model,
+            json.dumps(data, ensure_ascii=False)[:1000],
         )
-        return AssistantReply(
-            action="ask_question",
-            assistant_message=(
-                f"Quel prix dois-je utiliser pour {line_label} ?"
-                if locale == "fr"
-                else f"What price should I use for {line_label}?"
-            ),
-        )
+        raise LLMResponseError(
+            "LLM returned an unexpected response structure."
+        ) from exc
 
-    return AssistantReply(
-        action="ask_question",
-        assistant_message=(
-            "Parfait. Quel detail supplementaire dois-je ajouter avant de preparer une version prete a envoyer ?"
-            if locale == "fr"
-            else "Great. What extra detail should I add before I prepare a version that is ready to send?"
-        ),
-    )
+    if not isinstance(content, str) or not content.strip():
+        logger.warning("LLM response content empty model=%s content=%r", settings.openai_model, content)
+        raise LLMResponseError("LLM returned an empty response.")
+
+    json_text = _extract_json_text(content)
+
+    try:
+        parsed = json.loads(json_text)
+    except json.JSONDecodeError as exc:
+        logger.warning(
+            "LLM response invalid JSON model=%s content=%s",
+            settings.openai_model,
+            json_text[:1000],
+        )
+        raise LLMResponseError(
+            "LLM returned invalid JSON. Adjust the prompt or model settings and try again."
+        ) from exc
+
+    try:
+        return AssistantReply.model_validate(parsed)
+    except ValidationError as exc:
+        logger.warning(
+            "LLM response failed schema validation model=%s errors=%s payload=%s",
+            settings.openai_model,
+            exc.errors(),
+            json.dumps(parsed, ensure_ascii=False)[:1000],
+        )
+        raise LLMResponseError(
+            "LLM returned data that does not match the expected quote schema."
+        ) from exc
 
 
 def _serialize_quote(quote: Quote) -> dict[str, Any]:
@@ -268,45 +231,15 @@ def _serialize_quote(quote: Quote) -> dict[str, Any]:
     }
 
 
-def _build_title(message: str, locale: str) -> str:
-    cleaned = message.strip().rstrip(".?!")
-    if not cleaned:
-        return "Nouveau devis" if locale == "fr" else "New quote"
+def _extract_json_text(content: str) -> str:
+    stripped = content.strip()
 
-    base = cleaned[:70]
-    prefix = "Devis - " if locale == "fr" else "Quote - "
-    return f"{prefix}{base}"
+    if stripped.startswith("```"):
+        lines = stripped.splitlines()
+        if lines and lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].startswith("```"):
+            lines = lines[:-1]
+        stripped = "\n".join(lines).strip()
 
-
-def _build_line_item_description(message: str, locale: str) -> str:
-    if locale == "fr":
-        return f"Prestation principale - {message[:100]}" if message else "Prestation principale"
-    return f"Primary service - {message[:100]}" if message else "Primary service"
-
-
-def _extract_customer_fields(message: str, locale: str) -> dict[str, str] | None:
-    cleaned = re.sub(r"\s+", " ", message.strip()).strip(" .,!?")
-    if not cleaned or any(char.isdigit() for char in cleaned):
-        return None
-
-    if len(cleaned.split()) > 8:
-        return None
-
-    company_markers = {"inc", "llc", "ltd", "studio", "company", "corp", "sarl", "sas"}
-    lower_words = {word.lower() for word in cleaned.split()}
-    if lower_words & company_markers or len(cleaned.split()) > 2:
-        return {"customer_company": cleaned}
-
-    return {"customer_name": cleaned}
-
-
-def _extract_money_cents(message: str) -> int | None:
-    match = re.search(r"(\d+[\d\s,.]*)", message)
-    if not match:
-        return None
-
-    normalized = match.group(1).replace(" ", "").replace(",", ".")
-    try:
-        return round(float(normalized) * 100)
-    except ValueError:
-        return None
+    return stripped

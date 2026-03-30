@@ -79,6 +79,7 @@ export const resources = {
         errors: {
           loadQuotes: "Impossible de charger les devis",
           createQuote: "Impossible de créer le devis",
+          deleteQuote: "Impossible de supprimer le devis",
         },
         stats: {
           totalQuotes: "Total des devis",
@@ -110,6 +111,9 @@ export const resources = {
           priced: "Chiffré",
           needsReview: "À revoir",
           openWorkspace: "Ouvrir l'espace de travail",
+          delete: "Supprimer",
+          deleting: "Suppression...",
+          confirmDelete: "Supprimer définitivement ce devis ? Cette action efface aussi les lignes et l'historique du chat.",
           updated: "Mis à jour {{value}}",
           lineItems_one: "{{count}} ligne",
           lineItems_other: "{{count}} lignes",
@@ -217,6 +221,7 @@ export const resources = {
           missingId: "L'identifiant du devis est manquant",
           load: "Impossible de charger le devis",
           save: "Impossible d'enregistrer le devis",
+          delete: "Impossible de supprimer le devis",
         },
         loading: "Chargement de l'espace devis...",
         openErrorTitle: "Impossible d'ouvrir le devis",
@@ -363,7 +368,10 @@ export const resources = {
           remove: "Supprimer",
           reload: "Recharger",
           print: "Imprimer",
+          deleteQuote: "Supprimer le devis",
         },
+        confirmDelete:
+          "Supprimer définitivement ce devis ? Cette action efface aussi les lignes et l'historique du chat.",
         lineItems: {
           emptyTitle: "Aucune ligne pour l'instant",
           emptyDescription:
@@ -487,6 +495,7 @@ export const resources = {
         errors: {
           loadQuotes: "Could not load quotes",
           createQuote: "Could not create quote",
+          deleteQuote: "Could not delete quote",
         },
         stats: {
           totalQuotes: "Total quotes",
@@ -518,6 +527,9 @@ export const resources = {
           priced: "Priced",
           needsReview: "Needs review",
           openWorkspace: "Open workspace",
+          delete: "Delete",
+          deleting: "Deleting...",
+          confirmDelete: "Delete this quote permanently? This also removes its line items and chat history.",
           updated: "Updated {{value}}",
           lineItems_one: "{{count}} line item",
           lineItems_other: "{{count}} line items",
@@ -625,6 +637,7 @@ export const resources = {
           missingId: "Quote ID is missing",
           load: "Could not load quote",
           save: "Could not save quote",
+          delete: "Could not delete quote",
         },
         loading: "Loading quote workspace...",
         openErrorTitle: "Could not open quote",
@@ -771,7 +784,10 @@ export const resources = {
           remove: "Remove",
           reload: "Reload",
           print: "Print",
+          deleteQuote: "Delete quote",
         },
+        confirmDelete:
+          "Delete this quote permanently? This also removes its line items and chat history.",
         lineItems: {
           emptyTitle: "No line items yet",
           emptyDescription:

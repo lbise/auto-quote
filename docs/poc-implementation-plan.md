@@ -22,6 +22,9 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 - [x] Added English/French UI foundations with French as the default locale
 - [x] Added quote chat persistence and a first assistant workflow for the workspace
 - [x] Deployed the full-stack app on SwiftWave with persistent SQLite storage
+- [x] Added shared demo login protection for the deployed app
+- [x] Documented and tested SQLite backup and restore procedures
+- [x] Added hard-delete quote actions for dashboard and workspace cleanup
 
 ### Current Milestone Checklist
 
@@ -582,8 +585,8 @@ Acceptance criteria:
 
 - [x] app runs on one VPS
 - [x] data survives container restarts
-- [ ] app is behind HTTPS and password protection
-- [ ] backup procedure is documented and tested
+- [x] app is behind HTTPS and password protection
+- [x] backup procedure is documented and tested
 
 ## Deployment Defaults
 

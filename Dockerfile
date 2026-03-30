@@ -19,7 +19,7 @@ COPY server/requirements.txt server/requirements.txt
 RUN pip install --no-cache-dir -r server/requirements.txt
 
 COPY server server
-COPY scripts/start.sh scripts/start.sh
+COPY scripts scripts
 COPY --from=frontend-build /app/dist dist
 
 RUN mkdir -p /app/data && chmod +x /app/scripts/start.sh

@@ -15,7 +15,7 @@ import {
   RiUserLine,
 } from "@remixicon/react"
 import { useTranslation } from "react-i18next"
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 
 import { QuotePrintSheet } from "@/components/quotes/quote-print-sheet"
 import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
+  deleteQuote,
   getQuote,
   getSettings,
   sendQuoteMessage,
@@ -75,11 +76,13 @@ const emptyLineItem = (): QuoteLineItemForm => ({
 function QuoteWorkspacePage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage
+  const navigate = useNavigate()
   const { quoteId } = useParams<{ quoteId: string }>()
   const [quote, setQuote] = useState<Quote | null>(null)
   const [form, setForm] = useState<QuoteFormState | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [isChatting, setIsChatting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [chatError, setChatError] = useState<string | null>(null)
@@ -287,6 +290,28 @@ function QuoteWorkspacePage() {
     window.print()
   }
 
+  async function handleDeleteQuote() {
+    if (!quote) {
+      return
+    }
+
+    const confirmed = window.confirm(t("quote.confirmDelete"))
+    if (!confirmed) {
+      return
+    }
+
+    setIsDeleting(true)
+    setError(null)
+
+    try {
+      await deleteQuote(quote.id)
+      navigate("/", { replace: true })
+    } catch (deleteError) {
+      setError(toErrorMessage(deleteError, t("quote.errors.delete")))
+      setIsDeleting(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <div className="flex min-h-[32rem] items-center justify-center rounded-[2rem] border border-dashed border-border/70 bg-white/60">
@@ -473,7 +498,7 @@ function QuoteWorkspacePage() {
                 <Button
                   type="submit"
                   className="h-11 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20"
-                  disabled={isChatting || !chatInput.trim() || hasUnsavedChanges || isSaving}
+                  disabled={isChatting || !chatInput.trim() || hasUnsavedChanges || isSaving || isDeleting}
                 >
                   {isChatting ? <RiLoader4Line className="size-4 animate-spin" /> : <RiChat3Line className="size-4" />}
                   {isChatting ? t("quote.chat.sending") : t("quote.chat.send")}
@@ -551,7 +576,7 @@ function QuoteWorkspacePage() {
               variant="outline"
               className="h-11 rounded-full px-5 text-sm"
               onClick={handlePrint}
-              disabled={hasUnsavedChanges || isSaving || isChatting}
+              disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting}
             >
               <RiPrinterLine className="size-4" />
               {t("quote.actions.print")}
@@ -579,10 +604,20 @@ function QuoteWorkspacePage() {
               </Button>
               <Button
                 type="button"
+                variant="destructive"
+                className="h-10 rounded-full px-4 text-sm"
+                onClick={() => void handleDeleteQuote()}
+                disabled={isDeleting || isSaving || isChatting}
+              >
+                {isDeleting ? <RiLoader4Line className="size-4 animate-spin" /> : <RiDeleteBinLine className="size-4" />}
+                {isDeleting ? t("dashboard.recent.deleting") : t("quote.actions.deleteQuote")}
+              </Button>
+              <Button
+                type="button"
                 variant="outline"
                 className="h-10 rounded-full px-4 text-sm"
                 onClick={handlePrint}
-                disabled={hasUnsavedChanges || isSaving || isChatting}
+                disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting}
               >
                 <RiPrinterLine className="size-4" />
                 {t("quote.actions.print")}
@@ -591,7 +626,7 @@ function QuoteWorkspacePage() {
                 type="submit"
                 form="quote-workspace-form"
                 className="h-10 rounded-full px-4 text-sm font-semibold shadow-lg shadow-primary/20"
-                disabled={isSaving}
+                disabled={isSaving || isDeleting}
               >
                 {isSaving ? <RiLoader4Line className="size-4 animate-spin" /> : <RiSaveLine className="size-4" />}
                 {isSaving ? t("quote.saving") : t("quote.saveQuote")}
@@ -866,12 +901,12 @@ function QuoteWorkspacePage() {
                   variant="outline"
                   className="h-11 rounded-full px-5 text-sm"
                   onClick={handlePrint}
-                  disabled={hasUnsavedChanges || isSaving || isChatting}
+                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting}
                 >
                   <RiPrinterLine className="size-4" />
                   {t("quote.actions.print")}
                 </Button>
-                <Button type="submit" className="h-11 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20" disabled={isSaving}>
+                <Button type="submit" className="h-11 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20" disabled={isSaving || isDeleting}>
                   {isSaving ? <RiLoader4Line className="size-4 animate-spin" /> : <RiCheckLine className="size-4" />}
                   {isSaving ? t("quote.savingQuote") : t("quote.saveQuote")}
                 </Button>

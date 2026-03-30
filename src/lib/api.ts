@@ -227,6 +227,12 @@ export function updateQuote(quoteId: number, payload: UpdateQuotePayload): Promi
   })
 }
 
+export function deleteQuote(quoteId: number): Promise<void> {
+  return request<void>(`/api/quotes/${quoteId}`, {
+    method: "DELETE",
+  })
+}
+
 export function sendQuoteMessage(quoteId: number, payload: QuoteChatPayload): Promise<QuoteChatResponse> {
   return request<QuoteChatResponse>(`/api/quotes/${quoteId}/chat`, {
     method: "POST",

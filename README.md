@@ -39,6 +39,9 @@ If port `5173` is already taken, Vite will choose another port and print it in t
 
 The backend runs on `http://127.0.0.1:8000` and exposes:
 
+- `GET /api/auth/session`
+- `POST /api/auth/login`
+- `POST /api/auth/logout`
 - `GET /api/health`
 - `GET /api/settings`
 - `PATCH /api/settings`
@@ -46,6 +49,7 @@ The backend runs on `http://127.0.0.1:8000` and exposes:
 - `POST /api/quotes`
 - `GET /api/quotes/{id}`
 - `PATCH /api/quotes/{id}`
+- `DELETE /api/quotes/{id}`
 - `POST /api/quotes/{id}/chat`
 
 The SQLite database file is created at `data/app.db`.
@@ -55,6 +59,7 @@ The frontend now includes:
 - `/` for the quote dashboard
 - `/settings` for business defaults
 - `/quotes/:id` for the quote workspace shell
+- `/login` for the shared demo sign-in screen
 
 Language support currently includes:
 
@@ -146,11 +151,47 @@ Recommended environment variables:
 
 - `APP_ENV=production`
 - `DATABASE_URL=sqlite:////app/data/app.db`
-- `LLM_MODE=auto` or `LLM_MODE=openai`
+- `LLM_MODE=openai`
 - `OPENAI_API_KEY` when using a real model
+- `APP_USERNAME=owner`
+- `APP_PASSWORD` for the shared demo login
+- `APP_SESSION_SECRET` for signed session cookies
 
 Important SQLite constraint:
 
 - run a single replica only; do not scale this PoC horizontally while using SQLite
 
 If your GitHub package is private, SwiftWave will also need GitHub Container Registry credentials with access to that package.
+
+SwiftWave deployment notes:
+
+- HTTPS should be enabled at the platform or reverse-proxy layer
+- the app-side shared login is enabled by setting `APP_PASSWORD` and `APP_SESSION_SECRET`
+- leave the container at a single replica while SQLite is in use
+
+## Backup and Restore
+
+The app includes two SQLite maintenance scripts:
+
+- `python3 scripts/backup_sqlite.py --db data/app.db --output-dir data/backups`
+- `python3 scripts/restore_sqlite.py --source data/backups/<backup-file>.db --db data/app.db`
+
+Production/SwiftWave equivalents inside the container use the mounted data volume:
+
+- `python /app/scripts/backup_sqlite.py --db /app/data/app.db --output-dir /app/data/backups`
+- `python /app/scripts/restore_sqlite.py --source /app/data/backups/<backup-file>.db --db /app/data/app.db`
+
+Recommended backup procedure:
+
+1. Run the backup script against `/app/data/app.db`
+2. Keep 7 to 14 dated copies in `/app/data/backups`
+3. Copy the latest backup off the VPS if you want an extra safety layer
+
+Recommended restore procedure:
+
+1. Stop the app or scale it down to zero before restoring
+2. Run the restore script with the chosen backup file
+3. Start the app again
+4. Verify `/api/health` and open a known quote in the UI
+
+Backup/restore was tested locally by creating a temporary quote database, taking a backup, deleting data, restoring the backup, and verifying the quote returned.

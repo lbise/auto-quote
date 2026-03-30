@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   RiAddLine,
   RiArrowRightUpLine,
+  RiDeleteBinLine,
   RiDraftLine,
   RiFileList3Line,
   RiFilter3Line,
@@ -18,7 +19,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { createQuote, getQuotes, type QuoteListItem } from "@/lib/api"
+import { createQuote, deleteQuote, getQuotes, type QuoteListItem } from "@/lib/api"
 import { formatCurrency, formatDateTime } from "@/lib/format"
 
 function DashboardPage() {
@@ -28,6 +29,7 @@ function DashboardPage() {
   const [quotes, setQuotes] = useState<QuoteListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
+  const [deletingQuoteId, setDeletingQuoteId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "ready" | "sent">("all")
@@ -60,6 +62,25 @@ function DashboardPage() {
     } catch (createError) {
       setError(toErrorMessage(createError, t("dashboard.errors.createQuote")))
       setIsCreating(false)
+    }
+  }
+
+  async function handleDeleteQuote(quote: QuoteListItem) {
+    const confirmed = window.confirm(t("dashboard.recent.confirmDelete"))
+    if (!confirmed) {
+      return
+    }
+
+    setDeletingQuoteId(quote.id)
+    setError(null)
+
+    try {
+      await deleteQuote(quote.id)
+      setQuotes((current) => current.filter((item) => item.id !== quote.id))
+    } catch (deleteError) {
+      setError(toErrorMessage(deleteError, t("dashboard.errors.deleteQuote")))
+    } finally {
+      setDeletingQuoteId(null)
     }
   }
 
@@ -306,11 +327,11 @@ function DashboardPage() {
               </div>
             ) : (
             filteredQuotes.map((quote) => (
-              <Link
+              <div
                 key={quote.id}
-                to={`/quotes/${quote.id}`}
-                className="block rounded-[1.5rem] border border-border/60 bg-background/70 p-5 transition-colors hover:bg-background/85"
+                className="rounded-[1.5rem] border border-border/60 bg-background/70 p-5 transition-colors hover:bg-background/85"
               >
+                <Link to={`/quotes/${quote.id}`} className="block">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
@@ -343,17 +364,36 @@ function DashboardPage() {
                   </div>
                 </div>
 
+                </Link>
+
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4 text-sm text-muted-foreground">
                   <div className="flex flex-wrap items-center gap-4">
                     <span>{t("dashboard.recent.lineItems", { count: quote.item_count })}</span>
                     <span>{t("dashboard.recent.updated", { value: formatDateTime(quote.updated_at, locale) })}</span>
                   </div>
-                  <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                    {t("dashboard.recent.openWorkspace")}
-                    <RiArrowRightUpLine className="size-4" />
-                  </span>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="h-9 rounded-full px-3 text-sm text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => void handleDeleteQuote(quote)}
+                      disabled={deletingQuoteId === quote.id}
+                    >
+                      {deletingQuoteId === quote.id ? <RiLoader4Line className="size-4 animate-spin" /> : <RiDeleteBinLine className="size-4" />}
+                      {deletingQuoteId === quote.id ? t("dashboard.recent.deleting") : t("dashboard.recent.delete")}
+                    </Button>
+
+                    <Link
+                      to={`/quotes/${quote.id}`}
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 font-medium text-foreground transition-colors hover:text-primary"
+                    >
+                      {t("dashboard.recent.openWorkspace")}
+                      <RiArrowRightUpLine className="size-4" />
+                    </Link>
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </CardContent>

@@ -99,3 +99,9 @@ def update_quote(db: Session, quote_id: int, payload: QuoteUpdate) -> Quote:
     db.add(quote)
     db.commit()
     return get_quote(db, quote.id)
+
+
+def delete_quote(db: Session, quote_id: int) -> None:
+    quote = get_quote(db, quote_id)
+    db.delete(quote)
+    db.commit()

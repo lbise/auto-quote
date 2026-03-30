@@ -18,6 +18,7 @@ __pycache__/
 data/app.db
 data/app.db-shm
 data/app.db-wal
+data/backups/
 
 # Editor directories and files
 .vscode/*

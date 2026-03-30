@@ -5,7 +5,7 @@ from app.core.db import get_db
 from app.schemas.chat import QuoteChatRequest, QuoteChatResponse
 from app.schemas.quotes import QuoteCreate, QuoteListItem, QuoteRead, QuoteUpdate
 from app.services.chat_service import handle_quote_chat
-from app.services.quote_service import create_quote, get_quote, list_quotes, update_quote
+from app.services.quote_service import create_quote, delete_quote, get_quote, list_quotes, update_quote
 
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
@@ -56,6 +56,11 @@ def patch_quote(
 ) -> QuoteRead:
     quote = update_quote(db, quote_id, payload)
     return QuoteRead.model_validate(quote)
+
+
+@router.delete("/{quote_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_quote_route(quote_id: int, db: Session = Depends(get_db)) -> None:
+    delete_quote(db, quote_id)
 
 
 @router.post("/{quote_id}/chat", response_model=QuoteChatResponse)

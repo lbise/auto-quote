@@ -44,6 +44,14 @@ export const resources = {
           drafts: "Brouillons",
           readyToSend: "Prêts à envoyer",
         },
+        filters: {
+          searchPlaceholder: "Rechercher par numéro, titre ou client",
+          clear: "Réinitialiser les filtres",
+          status: {
+            label: "Filtrer par statut",
+            all: "Tous",
+          },
+        },
         recent: {
           title: "Devis récents",
           description:
@@ -54,6 +62,9 @@ export const resources = {
           emptyDescription:
             "Créez un premier brouillon pour servir de base au prochain flux avec assistant.",
           emptyAction: "Créer le premier devis",
+          emptyFilteredTitle: "Aucun devis ne correspond aux filtres",
+          emptyFilteredDescription:
+            "Essayez un autre mot-clé ou réinitialisez les filtres pour revoir tous les brouillons.",
           missingCustomer: "Informations client non renseignées",
           priced: "Chiffré",
           needsReview: "À revoir",
@@ -400,6 +411,14 @@ export const resources = {
           drafts: "Drafts",
           readyToSend: "Ready to send",
         },
+        filters: {
+          searchPlaceholder: "Search by quote number, title, or customer",
+          clear: "Clear filters",
+          status: {
+            label: "Filter by status",
+            all: "All",
+          },
+        },
         recent: {
           title: "Recent quotes",
           description:
@@ -410,6 +429,9 @@ export const resources = {
           emptyDescription:
             "Create the first draft and use it as the backbone for the upcoming assistant workflow.",
           emptyAction: "Start first quote",
+          emptyFilteredTitle: "No quotes match these filters",
+          emptyFilteredDescription:
+            "Try another keyword or clear the filters to bring every draft back into view.",
           missingCustomer: "Customer details not set yet",
           priced: "Priced",
           needsReview: "Needs review",

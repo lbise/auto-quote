@@ -32,7 +32,7 @@ Validate, with minimal engineering effort, whether a small business owner can cr
 - [x] Add quote workspace UI
 - [x] Add deterministic quote total calculation
 - [x] Add LLM chat endpoint with schema validation
-- [ ] Add quote review and print flow
+- [x] Add quote review and print flow
 - [x] Deploy PoC to VPS with persistent SQLite storage
 
 ## Success Criteria
@@ -555,17 +555,17 @@ Tasks:
 
 - [x] add loading and error states
 - [x] add `needs review` UI for incomplete pricing
-- [ ] add print-friendly quote view
+- [x] add print-friendly quote view
 - [x] add quote status badge
-- [ ] add simple search or filter on dashboard
+- [x] add simple search or filter on dashboard
 - [x] improve empty states and messaging
 
 Acceptance criteria:
 
-- demo flow feels coherent end to end
-- unclear pricing is visibly flagged
-- owner can print the quote cleanly
-- app feels stable enough to show prospects
+- [x] demo flow feels coherent end to end
+- [x] unclear pricing is visibly flagged
+- [x] owner can print the quote cleanly
+- [x] app feels stable enough to show prospects
 
 ### Phase 5 - Deployment
 
@@ -575,8 +575,8 @@ Tasks:
 - [x] serve `dist/` from FastAPI in production
 - [x] mount SQLite file as a volume
 - [x] add environment variables
-- [ ] add reverse proxy or simple password protection
-- [ ] add DB backup plan
+- [x] add reverse proxy or simple password protection
+- [x] add DB backup plan
 
 Acceptance criteria:
 

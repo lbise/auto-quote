@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   RiAddLine,
   RiArrowRightUpLine,
   RiDraftLine,
   RiFileList3Line,
+  RiFilter3Line,
   RiLoader4Line,
+  RiSearchLine,
   RiSettings3Line,
   RiTimeLine,
 } from "@remixicon/react"
@@ -15,6 +17,7 @@ import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { createQuote, getQuotes, type QuoteListItem } from "@/lib/api"
 import { formatCurrency, formatDateTime } from "@/lib/format"
 
@@ -26,6 +29,8 @@ function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "ready" | "sent">("all")
 
   const loadQuotes = useCallback(async () => {
     setIsLoading(true)
@@ -77,6 +82,41 @@ function DashboardPage() {
       value: String(readyCount),
       icon: RiTimeLine,
     },
+  ]
+
+  const filteredQuotes = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase()
+
+    return quotes.filter((quote) => {
+      const matchesStatus = statusFilter === "all" || quote.status === statusFilter
+      if (!matchesStatus) {
+        return false
+      }
+
+      if (!normalizedSearch) {
+        return true
+      }
+
+      const haystack = [
+        quote.quote_number,
+        quote.title,
+        quote.customer_name,
+        quote.customer_company,
+        quote.currency,
+      ]
+        .join(" ")
+        .toLowerCase()
+
+      return haystack.includes(normalizedSearch)
+    })
+  }, [quotes, searchTerm, statusFilter])
+
+  const hasActiveFilters = searchTerm.trim() !== "" || statusFilter !== "all"
+  const filterOptions: Array<{ value: "all" | "draft" | "ready" | "sent"; label: string }> = [
+    { value: "all", label: t("dashboard.filters.status.all") },
+    { value: "draft", label: t("status.draft") },
+    { value: "ready", label: t("status.ready") },
+    { value: "sent", label: t("status.sent") },
   ]
 
   return (
@@ -152,31 +192,81 @@ function DashboardPage() {
         </div>
       </div>
 
-      <Card className="border-white/60 bg-white/75">
-        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
-          <div>
+        <Card className="border-white/60 bg-white/75">
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
+            <div>
             <CardTitle>{t("dashboard.recent.title")}</CardTitle>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
               {t("dashboard.recent.description")}
             </p>
           </div>
 
-          <Button variant="outline" className="h-10 rounded-full px-4 text-sm" onClick={() => void loadQuotes()}>
-            {isLoading ? <RiLoader4Line className="size-4 animate-spin" /> : <RiTimeLine className="size-4" />}
-            {t("dashboard.recent.refresh")}
-          </Button>
-        </CardHeader>
+            <Button variant="outline" className="h-10 rounded-full px-4 text-sm" onClick={() => void loadQuotes()}>
+              {isLoading ? <RiLoader4Line className="size-4 animate-spin" /> : <RiTimeLine className="size-4" />}
+              {t("dashboard.recent.refresh")}
+            </Button>
+          </CardHeader>
 
-        <CardContent className="grid gap-3">
-          {isLoading ? (
-            <div className="flex min-h-80 items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background/60">
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <CardContent className="grid gap-3">
+            <div className="grid gap-3 rounded-[1.5rem] border border-border/60 bg-background/65 p-4">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                <label className="relative block">
+                  <RiSearchLine className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    placeholder={t("dashboard.filters.searchPlaceholder")}
+                    className="h-11 rounded-full bg-white/85 pl-11"
+                  />
+                </label>
+
+                {hasActiveFilters ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-11 rounded-full px-4 text-sm"
+                    onClick={() => {
+                      setSearchTerm("")
+                      setStatusFilter("all")
+                    }}
+                  >
+                    {t("dashboard.filters.clear")}
+                  </Button>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="gap-2 bg-white/70">
+                  <RiFilter3Line className="size-3.5" />
+                  {t("dashboard.filters.status.label")}
+                </Badge>
+                {filterOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setStatusFilter(option.value)}
+                    className={[
+                      "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                      statusFilter === option.value
+                        ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                        : "border-white/60 bg-white/70 text-muted-foreground hover:bg-background/85 hover:text-foreground",
+                    ].join(" ")}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {isLoading ? (
+              <div className="flex min-h-80 items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background/60">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <RiLoader4Line className="size-5 animate-spin" />
                 {t("dashboard.recent.loading")}
               </div>
             </div>
-          ) : quotes.length === 0 ? (
-            <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
+            ) : quotes.length === 0 ? (
+              <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
               <div className="space-y-2">
                 <p className="font-heading text-2xl font-semibold tracking-tight">
                   {t("dashboard.recent.emptyTitle")}
@@ -189,10 +279,33 @@ function DashboardPage() {
               <Button className="h-11 rounded-full px-5 text-sm font-semibold" onClick={() => void handleCreateQuote()}>
                 <RiAddLine className="size-4" />
                 {t("dashboard.recent.emptyAction")}
-              </Button>
-            </div>
-          ) : (
-            quotes.map((quote) => (
+                </Button>
+              </div>
+            ) : filteredQuotes.length === 0 ? (
+              <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
+                <div className="space-y-2">
+                  <p className="font-heading text-2xl font-semibold tracking-tight">
+                    {t("dashboard.recent.emptyFilteredTitle")}
+                  </p>
+                  <p className="max-w-md text-sm leading-6 text-muted-foreground">
+                    {t("dashboard.recent.emptyFilteredDescription")}
+                  </p>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-11 rounded-full px-5 text-sm"
+                  onClick={() => {
+                    setSearchTerm("")
+                    setStatusFilter("all")
+                  }}
+                >
+                  {t("dashboard.filters.clear")}
+                </Button>
+              </div>
+            ) : (
+            filteredQuotes.map((quote) => (
               <Link
                 key={quote.id}
                 to={`/quotes/${quote.id}`}

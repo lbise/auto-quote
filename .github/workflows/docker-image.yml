@@ -58,6 +58,31 @@ jobs:
 
       - name: Trigger SwiftWave redeploy
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        run: curl --fail --show-error --silent --request POST "$SWIFTWAVE_REDEPLOY_WEBHOOK"
         env:
           SWIFTWAVE_REDEPLOY_WEBHOOK: ${{ secrets.SWIFTWAVE_REDEPLOY_WEBHOOK }}
+          IMAGE_NAME: ${{ steps.image.outputs.name }}
+        run: |
+          payload=$(printf '{"image":"%s:latest","repository":"%s","ref":"%s","sha":"%s"}' \
+            "$IMAGE_NAME" "$GITHUB_REPOSITORY" "$GITHUB_REF" "$GITHUB_SHA")
+
+          response=$(curl --show-error --silent \
+            --request POST \
+            --header "Content-Type: application/json" \
+            --data "$payload" \
+            --write-out '\n%{http_code}' \
+            "$SWIFTWAVE_REDEPLOY_WEBHOOK")
+
+          http_status="${response##*$'\n'}"
+          response_body="${response%$'\n'*}"
+
+          printf 'SwiftWave response: %s\n' "$response_body"
+
+          if [ "$http_status" -ge 400 ]; then
+            printf 'SwiftWave webhook failed with HTTP %s\n' "$http_status" >&2
+            exit 1
+          fi
+
+          if [ "$response_body" = 'OK - No rebuild' ]; then
+            printf 'SwiftWave accepted the webhook but did not trigger a rebuild.\n' >&2
+            exit 1
+          fi

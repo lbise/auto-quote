@@ -14,6 +14,47 @@ export const resources = {
           en: "Anglais",
         },
       },
+      auth: {
+        badge: "Accès démo privé",
+        subtitle: "Connexion partagée pour les démonstrations client",
+        title: "Entrez dans l'espace de devis sans exposer les brouillons au public.",
+        description:
+          "Ce portail léger garde le produit suffisamment protégé pour des démonstrations réalistes, tout en restant simple à exploiter avant un vrai multi-compte.",
+        cardEyebrow: "Connexion sécurisée",
+        cardTitle: "Ouvrir la session démo",
+        cardDescription:
+          "Utilisez l'identifiant et le mot de passe configurés côté serveur. La session reste active via un cookie sécurisé.",
+        sharedUser: "Compte démo",
+        insights: {
+          privateTitle: "Accès privé",
+          privateDetail: "Les routes API restent fermées tant que la session n'est pas ouverte.",
+          sharedTitle: "Partagé",
+          sharedDetail: "Un seul identifiant suffit pour montrer le produit à un prospect.",
+          demoTitle: "Pragmatique",
+          demoDetail: "On garde un flux crédible aujourd'hui sans basculer dans un vrai SaaS multi-utilisateur.",
+        },
+        fields: {
+          username: {
+            label: "Identifiant",
+            hint: "Nom du compte partagé défini côté serveur.",
+            placeholder: "owner",
+          },
+          password: {
+            label: "Mot de passe",
+            hint: "Le mot de passe démo n'est jamais stocké côté navigateur.",
+            placeholder: "Votre mot de passe démo",
+          },
+        },
+        actions: {
+          signIn: "Entrer dans l'app",
+          signingIn: "Connexion...",
+          signOut: "Quitter",
+        },
+        loadingSession: "Chargement de la session AutoQuote...",
+        errors: {
+          login: "Impossible d'ouvrir la session démo",
+        },
+      },
       common: {
         untitledQuote: "Brouillon de devis sans titre",
         notSetYet: "Pas encore renseigné",
@@ -379,6 +420,47 @@ export const resources = {
           label: "Language",
           fr: "French",
           en: "English",
+        },
+      },
+      auth: {
+        badge: "Private demo access",
+        subtitle: "Shared sign-in for customer demos",
+        title: "Step into the quote workspace without leaving drafts exposed on the open web.",
+        description:
+          "This lightweight gate keeps the product private enough for realistic demos while staying intentionally simpler than full multi-account auth.",
+        cardEyebrow: "Secure sign-in",
+        cardTitle: "Open the demo session",
+        cardDescription:
+          "Use the shared username and password configured on the server. The app keeps you signed in with a secure session cookie.",
+        sharedUser: "Demo account",
+        insights: {
+          privateTitle: "Private access",
+          privateDetail: "API routes stay closed until the shared session is opened.",
+          sharedTitle: "Shared login",
+          sharedDetail: "One account is enough to walk a prospect through the product.",
+          demoTitle: "Pragmatic",
+          demoDetail: "It feels real for demos now without dragging the PoC into full SaaS auth.",
+        },
+        fields: {
+          username: {
+            label: "Username",
+            hint: "Shared account name configured on the server.",
+            placeholder: "owner",
+          },
+          password: {
+            label: "Password",
+            hint: "The demo password is never stored in browser state after sign-in.",
+            placeholder: "Your demo password",
+          },
+        },
+        actions: {
+          signIn: "Enter the app",
+          signingIn: "Signing in...",
+          signOut: "Sign out",
+        },
+        loadingSession: "Loading AutoQuote session...",
+        errors: {
+          login: "Could not open the demo session",
         },
       },
       common: {

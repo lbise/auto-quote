@@ -136,10 +136,21 @@ export type QuoteChatResponse = {
   quote: Quote
 }
 
+export type AuthSession = {
+  authenticated: boolean
+  username: string | null
+}
+
+export type AuthLoginPayload = {
+  username: string
+  password: string
+}
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ""
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
       ...(init?.headers ?? {}),
@@ -164,6 +175,23 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return response.json() as Promise<T>
+}
+
+export function getAuthSession(): Promise<AuthSession> {
+  return request<AuthSession>("/api/auth/session")
+}
+
+export function loginWithPassword(payload: AuthLoginPayload): Promise<AuthSession> {
+  return request<AuthSession>("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  })
+}
+
+export function logoutFromSession(): Promise<void> {
+  return request<void>("/api/auth/logout", {
+    method: "POST",
+  })
 }
 
 export function getSettings(): Promise<BusinessSettings> {

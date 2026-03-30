@@ -1,19 +1,24 @@
 import { type ComponentType, type ReactNode, useEffect } from "react"
 import {
   RiDashboardLine,
+  RiLogoutBoxRLine,
   RiSettings3Line,
   RiSparkling2Line,
 } from "@remixicon/react"
 import { useTranslation } from "react-i18next"
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 
+import { useAuth } from "@/components/auth/use-auth"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { getSettings } from "@/lib/api"
 import { getStoredLocale, isSupportedLocale, supportedLocales } from "@/lib/locale"
 import { cn } from "@/lib/utils"
 
 function AppShell({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation()
+  const { session, logout } = useAuth()
+  const navigate = useNavigate()
 
   const navigation: Array<{
     to: string
@@ -61,6 +66,11 @@ function AppShell({ children }: { children: ReactNode }) {
       active = false
     }
   }, [i18n])
+
+  async function handleLogout() {
+    await logout()
+    navigate("/login", { replace: true })
+  }
 
   return (
     <div className="relative min-h-svh overflow-hidden">
@@ -129,6 +139,16 @@ function AppShell({ children }: { children: ReactNode }) {
             <Badge variant="outline" className="bg-white/70">
               {t("app.phase2InProgress")}
             </Badge>
+
+            <div className="flex items-center gap-2 rounded-full border border-white/60 bg-white/70 p-1 pr-2 shadow-sm backdrop-blur">
+              <Badge variant="secondary" className="rounded-full px-3 py-2">
+                {session.username || t("auth.sharedUser")}
+              </Badge>
+              <Button variant="ghost" className="h-9 rounded-full px-3 text-sm" onClick={() => void handleLogout()}>
+                <RiLogoutBoxRLine className="size-4" />
+                {t("auth.actions.signOut")}
+              </Button>
+            </div>
           </div>
         </header>
 

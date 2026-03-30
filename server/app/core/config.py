@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     debug: bool = False
     app_username: str = Field(default="owner", alias="APP_USERNAME")
     app_password: str | None = Field(default=None, alias="APP_PASSWORD")
+    app_session_secret: str | None = Field(default=None, alias="APP_SESSION_SECRET")
+    session_max_age_seconds: int = Field(default=60 * 60 * 24 * 7, alias="SESSION_MAX_AGE_SECONDS")
     database_url: str = Field(
         default=f"sqlite:///{(DATA_DIR / 'app.db').resolve()}",
         alias="DATABASE_URL",

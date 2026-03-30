@@ -18,6 +18,12 @@
 - The quote workspace already supports manual editing, deterministic totals, and LLM chat updates.
 - Demo polish work added a review-before-print card, visible needs-review highlighting, and a print-only quote sheet driven from the latest saved quote.
 
+# Demo Auth Now Uses Ignored `.env` Secrets And Can Support Shared Session Login
+
+- `.env` is intentionally ignored by git now; `git status --short --ignored .env` should show `!! .env` rather than a tracked file state.
+- Production/demo auth credentials are expected to come from env vars like `APP_USERNAME`, `APP_PASSWORD`, and `APP_SESSION_SECRET`.
+- The next auth direction chosen by the user is a shared login screen with cookie session, not full per-user data isolation yet.
+
 # Be Careful Around Existing Uncommitted User Changes In Backend LLM Files And Docs
 
 - There are user-local uncommitted changes in files such as `README.md`, `docs/poc-implementation-plan.md`, `server/app/core/config.py`, `server/app/services/chat_service.py`, `server/app/services/llm_service.py`, `src/i18n/resources.ts`, and `.env`.

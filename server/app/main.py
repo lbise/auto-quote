@@ -1,5 +1,3 @@
-import base64
-import secrets
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -7,9 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
 from app.api.routes.quotes import router as quotes_router
 from app.api.routes.settings import router as settings_router
+from app.core.auth import SESSION_COOKIE_NAME, verify_session_token
 from app.core.config import ROOT_DIR, get_settings
 
 
@@ -24,6 +24,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(auth_router, prefix="/api")
 app.include_router(health_router, prefix="/api")
 app.include_router(quotes_router, prefix="/api")
 app.include_router(settings_router, prefix="/api")
@@ -34,22 +35,18 @@ async def require_basic_auth(request: Request, call_next):
     if not settings.app_password:
         return await call_next(request)
 
-    if request.method == "OPTIONS" or request.url.path == "/api/health":
+    if request.method == "OPTIONS":
         return await call_next(request)
 
-    auth_header = request.headers.get("authorization", "")
-    if auth_header.startswith("Basic "):
-        try:
-            decoded = base64.b64decode(auth_header[6:]).decode("utf-8")
-            username, password = decoded.split(":", 1)
-        except (ValueError, UnicodeDecodeError, base64.binascii.Error):
-            username = ""
-            password = ""
+    if not request.url.path.startswith("/api"):
+        return await call_next(request)
 
-        if secrets.compare_digest(username, settings.app_username) and secrets.compare_digest(
-            password, settings.app_password
-        ):
-            return await call_next(request)
+    if request.url.path == "/api/health" or request.url.path.startswith("/api/auth"):
+        return await call_next(request)
+
+    session_username = verify_session_token(request.cookies.get(SESSION_COOKIE_NAME))
+    if session_username:
+        return await call_next(request)
 
     return PlainTextResponse(
         "Authentication required",

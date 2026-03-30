@@ -17,14 +17,12 @@ export const resources = {
       auth: {
         badge: "Accès démo privé",
         subtitle: "Connexion partagée pour les démonstrations client",
-        title: "Entrez dans l'espace de devis sans exposer les brouillons au public.",
-        description:
-          "Ce portail léger garde le produit suffisamment protégé pour des démonstrations réalistes, tout en restant simple à exploiter avant un vrai multi-compte.",
+        title: "Connectez-vous pour accéder à vos devis.",
+        description: "Entrez vos identifiants pour continuer.",
         cardEyebrow: "Connexion sécurisée",
-        cardTitle: "Ouvrir la session démo",
-        cardDescription:
-          "Utilisez l'identifiant et le mot de passe configurés côté serveur. La session reste active via un cookie sécurisé.",
-        sharedUser: "Compte démo",
+        cardTitle: "Connexion",
+        cardDescription: "Utilisez votre identifiant et votre mot de passe.",
+        sharedUser: "Compte",
         insights: {
           privateTitle: "Accès privé",
           privateDetail: "Les routes API restent fermées tant que la session n'est pas ouverte.",
@@ -69,13 +67,12 @@ export const resources = {
         sent: "envoyé",
       },
       dashboard: {
-        eyebrow: "Tableau de bord devis",
-        title: "Créez, reprenez et structurez les brouillons avant que l'assistant commence à écrire.",
-        description:
-          "Le produit couvre maintenant les brouillons, l'espace de travail et le chat LLM. Cette phase ajoute la revue visuelle, les signaux \"à revoir\" et un flux d'impression plus crédible pour les démos.",
+        eyebrow: "Devis",
+        title: "Créez un devis ou reprenez un brouillon existant.",
+        description: "Retrouvez vos devis récents et continuez là où vous vous êtes arrêté.",
         newQuote: "Nouveau devis",
         creatingDraft: "Création du brouillon...",
-        reviewDefaults: "Voir les paramètres",
+        reviewDefaults: "Paramètres",
         errors: {
           loadQuotes: "Impossible de charger les devis",
           createQuote: "Impossible de créer le devis",
@@ -96,8 +93,7 @@ export const resources = {
         },
         recent: {
           title: "Devis récents",
-          description:
-            "Ouvrez un brouillon pour modifier les informations client, les lignes et les totaux avant l'arrivée de l'automatisation par chat.",
+          description: "Ouvrez un devis pour modifier les détails, les lignes et les totaux.",
           refresh: "Actualiser",
           loading: "Chargement des brouillons...",
           emptyTitle: "Aucun devis pour l'instant",
@@ -121,9 +117,8 @@ export const resources = {
       },
       settings: {
         badge: "Espace paramètres",
-        title: "Réglez les valeurs par défaut que votre assistant de devis doit réutiliser à chaque fois.",
-        description:
-          "Cet écran stocke les informations métier, la langue par défaut, les conditions de paiement, la TVA et la durée de validité que le backend injecte dans chaque nouveau brouillon.",
+        title: "Définissez les informations et réglages utilisés dans chaque devis.",
+        description: "Renseignez votre entreprise, la langue, les conditions de paiement et les valeurs par défaut.",
         badges: {
           sqlite: "Stocké dans SQLite",
           fastapi: "Connecté à FastAPI",
@@ -132,8 +127,8 @@ export const resources = {
         loading: "Chargement des paramètres métier...",
         saved: "Les paramètres par défaut sont enregistrés et prêts pour la génération de devis.",
         footer: {
-          idle: "Ces paramètres servent de base à chaque nouveau devis.",
-          backendOwned: "Ligne de paramètres gérée par le backend",
+          idle: "Ces réglages seront utilisés dans les nouveaux devis.",
+          backendOwned: "",
         },
         actions: {
           refresh: "Actualiser",
@@ -191,7 +186,7 @@ export const resources = {
           },
         },
         summary: {
-          title: "Aperçu des paramètres",
+          title: "Résumé",
           taxDefault: "TVA par défaut",
           quoteValidity: "Validité du devis",
           validityDays: "{{count}} jours",
@@ -226,10 +221,9 @@ export const resources = {
         loading: "Chargement de l'espace devis...",
         openErrorTitle: "Impossible d'ouvrir le devis",
         backToDashboard: "Retour au tableau de bord",
-        workspaceShell: "Structure de l'espace",
+        workspaceShell: "Aperçu du devis",
         assistantTitle: "Assistant de devis",
-        assistantDescription:
-          "Discutez ici avec le vrai modèle pour enrichir le brouillon et appliquer des mises à jour structurées au devis.",
+        assistantDescription: "Ajoutez des détails ou posez une question pour mettre à jour ce devis.",
         lastSaved: "Dernière sauvegarde",
         validUntil: "Valide jusqu'au",
         totalsPreview: "Aperçu des totaux",
@@ -258,10 +252,8 @@ export const resources = {
         subtotal: "Sous-total",
         tax: "TVA ({{value}})",
         total: "Total",
-        pricingReady:
-          "Toutes les lignes sont chiffrées et prêtes pour la prochaine phase d'automatisation.",
-        pricingIncomplete:
-          "Au moins une ligne doit encore être chiffrée ou revue avant que le devis soit prêt.",
+        pricingReady: "Toutes les lignes sont renseignées.",
+        pricingIncomplete: "Certaines lignes doivent encore être chiffrées ou vérifiées.",
         editorEyebrow: "Éditeur de devis",
         editorTitle: "Structurez le brouillon avant que l'IA ne commence à aider",
         back: "Retour",
@@ -384,8 +376,8 @@ export const resources = {
           readyToPrint: "Le devis peut être imprimé tel quel.",
           needsAttention_one: "{{count}} ligne demande encore une vérification.",
           needsAttention_other: "{{count}} lignes demandent encore une vérification.",
-          printHint: "L'impression utilise le dernier devis enregistré et affiche les éléments à revoir.",
-          saveBeforePrint: "Enregistrez les dernières modifications avant d'imprimer pour garder les totaux backend comme source de vérité.",
+          printHint: "Imprimez une version propre du devis avec les éléments à vérifier si besoin.",
+          saveBeforePrint: "Enregistrez vos modifications avant d'imprimer.",
           untitledLineItem: "Ligne {{index}} sans titre",
           reasons: {
             missingPrice: "Aucun prix unitaire n'est encore défini.",
@@ -408,9 +400,9 @@ export const resources = {
           reviewNoticeDescription_other: "{{count}} lignes doivent encore être revues ou chiffrées avant l'envoi final.",
         },
         footer: {
-          saved: "Le devis est enregistré. Les totaux backend sont à jour.",
-          idle: "Enregistrez le brouillon après vos modifications pour que le backend reste la source de vérité.",
-          backendOwned: "Totaux et validité pilotés par le backend",
+          saved: "Le devis a bien été enregistré.",
+          idle: "Enregistrez vos modifications pour garder le devis à jour.",
+          backendOwned: "Dernière version enregistrée",
         },
       },
     },
@@ -433,14 +425,12 @@ export const resources = {
       auth: {
         badge: "Private demo access",
         subtitle: "Shared sign-in for customer demos",
-        title: "Step into the quote workspace without leaving drafts exposed on the open web.",
-        description:
-          "This lightweight gate keeps the product private enough for realistic demos while staying intentionally simpler than full multi-account auth.",
+        title: "Sign in to access your quotes.",
+        description: "Enter your credentials to continue.",
         cardEyebrow: "Secure sign-in",
-        cardTitle: "Open the demo session",
-        cardDescription:
-          "Use the shared username and password configured on the server. The app keeps you signed in with a secure session cookie.",
-        sharedUser: "Demo account",
+        cardTitle: "Sign in",
+        cardDescription: "Use your username and password.",
+        sharedUser: "Account",
         insights: {
           privateTitle: "Private access",
           privateDetail: "API routes stay closed until the shared session is opened.",
@@ -485,13 +475,12 @@ export const resources = {
         sent: "sent",
       },
       dashboard: {
-        eyebrow: "Quote dashboard",
-        title: "Create, revisit, and shape quote drafts before the assistant starts writing.",
-        description:
-          "The product now covers drafts, the live workspace, and LLM chat. This phase adds visible review states, clearer needs-review signals, and a print flow that feels demo-ready.",
+        eyebrow: "Quotes",
+        title: "Create a quote or continue an existing draft.",
+        description: "See your recent quotes and pick up where you left off.",
         newQuote: "New quote",
         creatingDraft: "Creating draft...",
-        reviewDefaults: "Review defaults",
+        reviewDefaults: "Settings",
         errors: {
           loadQuotes: "Could not load quotes",
           createQuote: "Could not create quote",
@@ -512,8 +501,7 @@ export const resources = {
         },
         recent: {
           title: "Recent quotes",
-          description:
-            "Open a draft to edit customer details, line items, and totals before chat automation lands.",
+          description: "Open a quote to edit details, line items, and totals.",
           refresh: "Refresh",
           loading: "Loading saved drafts...",
           emptyTitle: "No quotes yet",
@@ -537,9 +525,8 @@ export const resources = {
       },
       settings: {
         badge: "Settings workspace",
-        title: "Dial in the defaults your quote assistant should reuse every time.",
-        description:
-          "This screen stores the business details, default language, payment terms, tax rate, and validity rules the backend injects into each new quote draft.",
+        title: "Set the details and defaults used in every quote.",
+        description: "Update your business details, language, payment terms, and default values.",
         badges: {
           sqlite: "SQLite-backed",
           fastapi: "FastAPI connected",
@@ -548,8 +535,8 @@ export const resources = {
         loading: "Loading business defaults...",
         saved: "Defaults saved and ready for quote generation.",
         footer: {
-          idle: "These defaults seed every new quote draft.",
-          backendOwned: "Backend-owned settings row",
+          idle: "These settings will be used in new quotes.",
+          backendOwned: "",
         },
         actions: {
           refresh: "Refresh",
@@ -607,7 +594,7 @@ export const resources = {
           },
         },
         summary: {
-          title: "Defaults snapshot",
+          title: "Summary",
           taxDefault: "Tax default",
           quoteValidity: "Quote validity",
           validityDays: "{{count}} days",
@@ -642,10 +629,9 @@ export const resources = {
         loading: "Loading quote workspace...",
         openErrorTitle: "Could not open quote",
         backToDashboard: "Back to dashboard",
-        workspaceShell: "Workspace shell",
+        workspaceShell: "Quote overview",
         assistantTitle: "Quote assistant",
-        assistantDescription:
-          "Chat here with the real model to enrich the draft and apply structured quote updates.",
+        assistantDescription: "Add details or ask a question to update this quote.",
         lastSaved: "Last saved",
         validUntil: "Valid until",
         totalsPreview: "Totals preview",
@@ -674,10 +660,8 @@ export const resources = {
         subtotal: "Subtotal",
         tax: "Tax ({{value}})",
         total: "Total",
-        pricingReady:
-          "All line items are priced and ready for the next phase of automation.",
-        pricingIncomplete:
-          "At least one line item still needs pricing or review before the quote is fully ready.",
+        pricingReady: "All line items are complete.",
+        pricingIncomplete: "Some line items still need pricing or review.",
         editorEyebrow: "Quote editor",
         editorTitle: "Shape the draft before AI starts helping",
         back: "Back",
@@ -800,8 +784,8 @@ export const resources = {
           readyToPrint: "This quote is ready to print as-is.",
           needsAttention_one: "{{count}} line item still needs review.",
           needsAttention_other: "{{count}} line items still need review.",
-          printHint: "Printing uses the latest saved quote and keeps any review flags visible.",
-          saveBeforePrint: "Save your latest edits before printing so backend totals remain the source of truth.",
+          printHint: "Print a clean version of the quote, with review notes if needed.",
+          saveBeforePrint: "Save your changes before printing.",
           untitledLineItem: "Untitled line item {{index}}",
           reasons: {
             missingPrice: "No unit price has been set yet.",
@@ -824,9 +808,9 @@ export const resources = {
           reviewNoticeDescription_other: "{{count}} line items still need review or pricing before final send.",
         },
         footer: {
-          saved: "Quote saved. Backend totals are now up to date.",
-          idle: "Save the draft after edits so the backend stays authoritative.",
-          backendOwned: "Backend-controlled totals and validity",
+          saved: "Quote saved.",
+          idle: "Save your changes to keep this quote up to date.",
+          backendOwned: "Latest saved version",
         },
       },
     },

@@ -26,6 +26,13 @@ That command now:
 - exposes the app on your local network
 - falls back to another backend port if `8000` is occupied by an outdated process
 
+Development auth defaults:
+
+- username: `demo`
+- password: `demo`
+
+You can override them locally with `APP_USERNAME`, `APP_PASSWORD`, and `APP_SESSION_SECRET` in `.env`.
+
 If you only want one side of the app, you can also use:
 
 - `npm run dev:web`

@@ -1,10 +1,9 @@
-import { useState, type ComponentType, type FormEvent, type ReactNode } from "react"
-import { RiLoader4Line, RiLockPasswordLine, RiShieldKeyholeLine, RiSparkling2Line } from "@remixicon/react"
+import { useState, type FormEvent, type ReactNode } from "react"
+import { RiLoader4Line, RiShieldKeyholeLine, RiSparkling2Line } from "@remixicon/react"
 import { useTranslation } from "react-i18next"
 import { Navigate } from "react-router-dom"
 
 import { useAuth } from "@/components/auth/use-auth"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,7 +11,7 @@ import { Input } from "@/components/ui/input"
 function LoginPage() {
   const { t } = useTranslation()
   const { session, isLoading, login } = useAuth()
-  const [username, setUsername] = useState("owner")
+  const [username, setUsername] = useState("demo")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -42,10 +41,6 @@ function LoginPage() {
 
       <div className="relative mx-auto grid min-h-[calc(100svh-3rem)] max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
         <section className="grid gap-6">
-          <Badge variant="outline" className="w-fit bg-white/70 px-4 py-2 text-[0.7rem] uppercase tracking-[0.3em]">
-            {t("auth.badge")}
-          </Badge>
-
           <div className="space-y-5">
             <div className="flex items-center gap-3">
               <div className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
@@ -53,7 +48,6 @@ function LoginPage() {
               </div>
               <div>
                 <p className="font-heading text-xl font-semibold tracking-tight">AutoQuote</p>
-                <p className="text-sm text-muted-foreground">{t("auth.subtitle")}</p>
               </div>
             </div>
 
@@ -64,31 +58,10 @@ function LoginPage() {
               {t("auth.description")}
             </p>
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <InsightCard
-              icon={RiShieldKeyholeLine}
-              title={t("auth.insights.privateTitle")}
-              detail={t("auth.insights.privateDetail")}
-            />
-            <InsightCard
-              icon={RiLockPasswordLine}
-              title={t("auth.insights.sharedTitle")}
-              detail={t("auth.insights.sharedDetail")}
-            />
-            <InsightCard
-              icon={RiSparkling2Line}
-              title={t("auth.insights.demoTitle")}
-              detail={t("auth.insights.demoDetail")}
-            />
-          </div>
         </section>
 
         <Card className="border-white/60 bg-white/80 shadow-2xl shadow-primary/10 backdrop-blur">
           <CardHeader className="space-y-4 p-7 sm:p-8">
-            <Badge variant="secondary" className="w-fit bg-white/80">
-              {t("auth.cardEyebrow")}
-            </Badge>
             <div className="space-y-2">
               <CardTitle className="font-heading text-3xl font-semibold tracking-tight">
                 {t("auth.cardTitle")}
@@ -154,26 +127,6 @@ function Field({ label, hint, children }: { label: string; hint: string; childre
       </div>
       {children}
     </label>
-  )
-}
-
-function InsightCard({
-  icon: Icon,
-  title,
-  detail,
-}: {
-  icon: ComponentType<{ className?: string }>
-  title: string
-  detail: string
-}) {
-  return (
-    <div className="rounded-[1.75rem] border border-white/60 bg-white/65 p-5 backdrop-blur">
-      <div className="flex size-11 items-center justify-center rounded-2xl bg-secondary text-foreground">
-        <Icon className="size-4" />
-      </div>
-      <p className="mt-4 font-heading text-lg font-semibold tracking-tight">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{detail}</p>
-    </div>
   )
 }
 

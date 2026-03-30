@@ -83,12 +83,7 @@ function AppShell({ children }: { children: ReactNode }) {
             <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
               <RiSparkling2Line className="size-5" />
             </div>
-            <div>
-              <p className="font-heading text-lg font-semibold tracking-tight">AutoQuote</p>
-              <p className="text-sm text-muted-foreground">
-                {t("app.brandSubtitle")}
-              </p>
-            </div>
+            <p className="font-heading text-lg font-semibold tracking-tight">AutoQuote</p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
@@ -135,11 +130,6 @@ function AppShell({ children }: { children: ReactNode }) {
                 )
               })}
             </nav>
-
-            <Badge variant="outline" className="bg-white/70">
-              {t("app.phase2InProgress")}
-            </Badge>
-
             <div className="flex items-center gap-2 rounded-full border border-white/60 bg-white/70 p-1 pr-2 shadow-sm backdrop-blur">
               <Badge variant="secondary" className="rounded-full px-3 py-2">
                 {session.username || t("auth.sharedUser")}

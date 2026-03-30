@@ -1,26 +1,22 @@
-import { type ComponentType, type FormEvent, type ReactNode, useCallback, useEffect, useState } from "react"
+import { type FormEvent, type ReactNode, useCallback, useEffect, useState } from "react"
 import {
   RiBankCardLine,
   RiCheckLine,
   RiDatabase2Line,
   RiLoader4Line,
-  RiMailLine,
-  RiMapPinLine,
-  RiPhoneLine,
   RiRefreshLine,
   RiShieldCheckLine,
   RiTranslate2,
 } from "@remixicon/react"
 import { useTranslation } from "react-i18next"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { getSettings, updateSettings, type BusinessSettings } from "@/lib/api"
 import { defaultLocale, supportedLocales, type AppLocale } from "@/lib/locale"
-import { formatDateTime, formatPercent } from "@/lib/format"
+import { formatPercent } from "@/lib/format"
 
 type SettingsFormState = {
   business_name: string
@@ -150,15 +146,11 @@ function SettingsPage() {
     : []
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+    <div className="grid gap-6 lg:grid-cols-[1.28fr_0.72fr] lg:items-start">
       <Card className="relative overflow-hidden border-white/60 bg-white/75">
         <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
 
         <CardHeader className="gap-5 p-7 sm:p-8">
-          <Badge variant="secondary" className="w-fit bg-white/80">
-            {t("settings.badge")}
-          </Badge>
-
           <div className="space-y-4">
             <h1 className="max-w-3xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem] lg:leading-[1.02]">
               {t("settings.title")}
@@ -168,17 +160,6 @@ function SettingsPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className="bg-white/70">
-              {t("settings.badges.sqlite")}
-            </Badge>
-            <Badge variant="outline" className="bg-white/70">
-              {t("settings.badges.fastapi")}
-            </Badge>
-            <Badge variant="outline" className="bg-white/70">
-              {t("settings.badges.phase1")}
-            </Badge>
-          </div>
         </CardHeader>
 
         <CardContent className="px-7 pb-7 sm:px-8 sm:pb-8">
@@ -311,9 +292,6 @@ function SettingsPage() {
                   <p className="text-sm font-medium text-foreground">
                     {savedMessage ?? t("settings.footer.idle")}
                   </p>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                    {t("settings.footer.backendOwned")}
-                  </p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <Button
@@ -374,64 +352,6 @@ function SettingsPage() {
             })}
           </CardContent>
         </Card>
-
-        <Card className="border-white/60 bg-white/75">
-          <CardHeader>
-            <CardTitle>{t("settings.assistantInputs.title")}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <SignalRow
-              icon={RiMailLine}
-              label={t("settings.assistantInputs.contactDetails")}
-              value={settings?.business_email || t("common.notSetYet")}
-            />
-            <SignalRow
-              icon={RiPhoneLine}
-              label={t("settings.assistantInputs.phone")}
-              value={settings?.business_phone || t("common.notSetYet")}
-            />
-            <SignalRow
-              icon={RiMapPinLine}
-              label={t("settings.assistantInputs.address")}
-              value={settings?.business_address || t("common.notSetYet")}
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="border-white/60 bg-white/70">
-          <CardHeader>
-            <CardTitle>{t("settings.backend.title")}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                {t("settings.backend.persistenceLabel")}
-              </p>
-              <p className="mt-2 font-heading text-2xl font-semibold tracking-tight">
-                {t("settings.backend.persistenceValue")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {t("settings.backend.persistenceDescription")}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                {t("settings.backend.lastSaved")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-foreground/85">
-                {settings ? formatDateTime(settings.updated_at, locale) : t("common.notSetYet")}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                {t("settings.backend.nextUnlock")}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-foreground/85">
-                {t("settings.backend.nextUnlockDescription")}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
@@ -454,28 +374,6 @@ function FieldBlock({
       </div>
       {children}
     </label>
-  )
-}
-
-function SignalRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: ComponentType<{ className?: string }>
-  label: string
-  value: string
-}) {
-  return (
-    <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-background/70 p-4">
-      <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-secondary text-foreground">
-        <Icon className="size-4" />
-      </div>
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">{label}</p>
-        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-foreground/85">{value}</p>
-      </div>
-    </div>
   )
 }
 

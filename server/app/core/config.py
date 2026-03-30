@@ -1,7 +1,7 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     app_name: str = "AutoQuote API"
     app_env: str = "development"
     debug: bool = False
-    app_username: str = Field(default="owner", alias="APP_USERNAME")
+    app_username: str | None = Field(default=None, alias="APP_USERNAME")
     app_password: str | None = Field(default=None, alias="APP_PASSWORD")
     app_session_secret: str | None = Field(default=None, alias="APP_SESSION_SECRET")
     session_max_age_seconds: int = Field(default=60 * 60 * 24 * 7, alias="SESSION_MAX_AGE_SECONDS")
@@ -37,6 +37,20 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
+
+    @model_validator(mode="after")
+    def apply_auth_defaults(self) -> "Settings":
+        if self.app_env.lower() == "development":
+            if not self.app_username:
+                self.app_username = "demo"
+            if not self.app_password:
+                self.app_password = "demo"
+            if not self.app_session_secret:
+                self.app_session_secret = "dev-session-secret"
+        elif not self.app_username:
+            self.app_username = "owner"
+
+        return self
 
 
 @lru_cache

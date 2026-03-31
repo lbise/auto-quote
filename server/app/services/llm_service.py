@@ -90,6 +90,11 @@ def _generate_openai_reply(
                             "default_payment_terms": business_settings.default_payment_terms,
                             "default_tax_rate": float(business_settings.default_tax_rate),
                             "default_validity_days": business_settings.default_validity_days,
+                            "priced_items": [
+                                item
+                                for item in business_settings.priced_items
+                                if item.get("is_active", True)
+                            ],
                         },
                         "quote": _serialize_quote(quote),
                         "conversation": conversation,

@@ -3,6 +3,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.schemas.priced_items import PricedItem
+
 
 LocaleCode = Literal["fr", "en"]
 
@@ -17,6 +19,7 @@ class SettingsBase(BaseModel):
     default_tax_rate: float = Field(default=0, ge=0, le=1)
     default_payment_terms: str = "Paiement à réception"
     default_validity_days: int = Field(default=30, ge=1, le=365)
+    priced_items: list[PricedItem] = Field(default_factory=list)
 
 
 class SettingsUpdate(BaseModel):
@@ -29,6 +32,7 @@ class SettingsUpdate(BaseModel):
     default_tax_rate: float | None = Field(default=None, ge=0, le=1)
     default_payment_terms: str | None = None
     default_validity_days: int | None = Field(default=None, ge=1, le=365)
+    priced_items: list[PricedItem] | None = None
 
 
 class SettingsRead(SettingsBase):

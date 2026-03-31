@@ -12,7 +12,7 @@ class QuoteLineItem(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     quote_id: Mapped[int] = mapped_column(ForeignKey("quotes.id", ondelete="CASCADE"), index=True)
     description: Mapped[str] = mapped_column(Text, default="")
-    quantity: Mapped[float] = mapped_column(Numeric(10, 2), default=1)
+    quantity: Mapped[float] = mapped_column(Numeric(10, 3), default=1)
     unit: Mapped[str] = mapped_column(String(32), default="job")
     unit_price_cents: Mapped[int | None] = mapped_column(Integer, nullable=True, default=None)
     line_total_cents: Mapped[int] = mapped_column(Integer, default=0)

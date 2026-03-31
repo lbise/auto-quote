@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Any
 
-from sqlalchemy import DateTime, Integer, Numeric, String, Text, func
+from sqlalchemy import JSON, DateTime, Integer, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db import Base
@@ -19,6 +20,7 @@ class AppSettings(Base):
     default_tax_rate: Mapped[float] = mapped_column(Numeric(5, 4), default=0)
     default_payment_terms: Mapped[str] = mapped_column(Text, default="Paiement à réception")
     default_validity_days: Mapped[int] = mapped_column(Integer, default=30)
+    priced_items: Mapped[list[dict[str, Any]]] = mapped_column(JSON, default=list)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),

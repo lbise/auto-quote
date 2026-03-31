@@ -43,12 +43,14 @@ import {
   sendQuoteMessage,
   updateQuote,
   type BusinessSettings,
+  type PricedItem,
   type Quote,
   type QuoteLineItem,
   type QuoteStatus,
 } from "@/lib/api"
 import { formatCurrency, formatDate, formatDateTime, formatPercent } from "@/lib/format"
 import { supportedLocales, type AppLocale } from "@/lib/locale"
+import { calculatePricedItemQuantity, formatNumberInput, type VolumeInputUnit } from "@/lib/priced-items"
 
 type QuoteLineItemForm = {
   description: string
@@ -77,6 +79,15 @@ type QuoteFormState = {
   line_items: QuoteLineItemForm[]
 }
 
+type CatalogInsertState = {
+  priced_item_id: string
+  fixed_quantity: string
+  area_width: string
+  area_length: string
+  volume_amount: string
+  volume_unit: VolumeInputUnit
+}
+
 const emptyLineItem = (): QuoteLineItemForm => ({
   description: "",
   quantity: "1",
@@ -84,6 +95,15 @@ const emptyLineItem = (): QuoteLineItemForm => ({
   unit_price: "",
   needs_review: true,
 })
+
+const emptyCatalogInsertState: CatalogInsertState = {
+  priced_item_id: "",
+  fixed_quantity: "1",
+  area_width: "",
+  area_length: "",
+  volume_amount: "",
+  volume_unit: "l",
+}
 
 function QuoteWorkspacePage() {
   const { t, i18n } = useTranslation()
@@ -102,6 +122,8 @@ function QuoteWorkspacePage() {
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
   const [chatInput, setChatInput] = useState("")
   const [businessSettings, setBusinessSettings] = useState<BusinessSettings | null>(null)
+  const [catalogInsert, setCatalogInsert] = useState<CatalogInsertState>(emptyCatalogInsertState)
+  const [catalogError, setCatalogError] = useState<string | null>(null)
   const chatScrollRef = useRef<HTMLDivElement>(null)
 
   const loadQuote = useCallback(async (id: number) => {
@@ -174,6 +196,18 @@ function QuoteWorkspacePage() {
 
       return { ...current, line_items }
     })
+  }
+
+  function updateCatalogInsertField(field: keyof CatalogInsertState, value: string) {
+    setSavedMessage(null)
+    setCatalogError(null)
+    setCatalogInsert((current) => ({ ...current, [field]: value }))
+  }
+
+  function selectPricedItem(itemId: string) {
+    setSavedMessage(null)
+    setCatalogError(null)
+    setCatalogInsert(buildCatalogInsertState(activePricedItems.find((item) => item.id === itemId) ?? null))
   }
 
   function addLineItem() {
@@ -274,6 +308,32 @@ function QuoteWorkspacePage() {
     }
   }, [form])
 
+  const activePricedItems = useMemo(
+    () => (businessSettings?.priced_items ?? []).filter((item) => item.is_active),
+    [businessSettings]
+  )
+
+  const selectedPricedItem = useMemo(
+    () =>
+      activePricedItems.find((item) => item.id === catalogInsert.priced_item_id) ?? activePricedItems[0] ?? null,
+    [activePricedItems, catalogInsert.priced_item_id]
+  )
+
+  const pricedItemPreview = useMemo(() => {
+    if (!selectedPricedItem) {
+      return null
+    }
+
+    const quantity = calculatePricedItemQuantity(selectedPricedItem.pricing_mode, catalogInsert)
+
+    return {
+      description: selectedPricedItem.description || selectedPricedItem.name,
+      quantity,
+      unit: selectedPricedItem.unit,
+      totalCents: quantity === null ? 0 : Math.round(quantity * selectedPricedItem.unit_price_cents),
+    }
+  }, [catalogInsert, selectedPricedItem])
+
   const hasUnsavedChanges = useMemo(() => {
     if (!quote || !form) {
       return false
@@ -281,6 +341,21 @@ function QuoteWorkspacePage() {
 
     return JSON.stringify(form) !== JSON.stringify(toFormState(quote))
   }, [form, quote])
+
+  useEffect(() => {
+    if (activePricedItems.length === 0) {
+      setCatalogInsert(emptyCatalogInsertState)
+      return
+    }
+
+    setCatalogInsert((current) => {
+      if (activePricedItems.some((item) => item.id === current.priced_item_id)) {
+        return current
+      }
+
+      return buildCatalogInsertState(activePricedItems[0])
+    })
+  }, [activePricedItems])
 
   async function handleChatSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -309,6 +384,40 @@ function QuoteWorkspacePage() {
 
   function handlePrint() {
     window.print()
+  }
+
+  function addPricedItemToQuote() {
+    if (!form || !selectedPricedItem) {
+      return
+    }
+
+    const quantity = calculatePricedItemQuantity(selectedPricedItem.pricing_mode, catalogInsert)
+    if (quantity === null) {
+      setCatalogError(t(`quote.pricedItems.errors.${selectedPricedItem.pricing_mode}`))
+      return
+    }
+
+    setCatalogError(null)
+    setSavedMessage(null)
+    setChatError(null)
+    setForm((current) =>
+      current
+        ? {
+            ...current,
+            line_items: [
+              ...current.line_items,
+              {
+                description: selectedPricedItem.description || selectedPricedItem.name,
+                quantity: formatNumberInput(quantity),
+                unit: selectedPricedItem.unit,
+                unit_price: formatMoneyInput(selectedPricedItem.unit_price_cents),
+                needs_review: false,
+              },
+            ],
+          }
+        : current
+    )
+    setCatalogInsert(buildCatalogInsertState(selectedPricedItem))
   }
 
   async function handleDeleteQuote() {
@@ -834,6 +943,152 @@ function QuoteWorkspacePage() {
                     </Button>
                   </div>
 
+                  {activePricedItems.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border bg-card px-4 py-5 text-sm text-muted-foreground">
+                      <p className="font-medium text-foreground">{t("quote.pricedItems.emptyTitle")}</p>
+                      <p className="mt-1.5 leading-relaxed">{t("quote.pricedItems.emptyDescription")}</p>
+                      <Button asChild variant="outline" size="sm" className="mt-3">
+                        <Link to="/settings">{t("quote.pricedItems.goToSettings")}</Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4 rounded-lg border border-border/60 bg-card p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{t("quote.pricedItems.title")}</p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            {t("quote.pricedItems.description")}
+                          </p>
+                        </div>
+
+                        <Button type="button" size="sm" onClick={addPricedItemToQuote} disabled={!selectedPricedItem}>
+                          <RiAddLine className="size-3.5" />
+                          {t("quote.pricedItems.add")}
+                        </Button>
+                      </div>
+
+                      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.15fr)_0.85fr]">
+                        <FieldBlock label={t("quote.pricedItems.fields.item.label")} hint={t("quote.pricedItems.fields.item.hint")}>
+                          <Select value={selectedPricedItem?.id ?? ""} onValueChange={selectPricedItem}>
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {activePricedItems.map((item) => (
+                                <SelectItem key={item.id} value={item.id}>
+                                  {item.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FieldBlock>
+
+                        {selectedPricedItem?.pricing_mode === "fixed" ? (
+                          <FieldBlock label={t("quote.pricedItems.fields.fixedQuantity.label")} hint={t("quote.pricedItems.fields.fixedQuantity.hint")}>
+                            <Input
+                              type="number"
+                              min="0.001"
+                              step="0.001"
+                              value={catalogInsert.fixed_quantity}
+                              onChange={(event) => updateCatalogInsertField("fixed_quantity", event.target.value)}
+                              placeholder={t("quote.pricedItems.fields.fixedQuantity.placeholder")}
+                            />
+                          </FieldBlock>
+                        ) : null}
+
+                        {selectedPricedItem?.pricing_mode === "area_rectangle" ? (
+                          <div className="grid gap-3 md:col-span-2 md:grid-cols-2 xl:col-span-1 xl:grid-cols-2">
+                            <FieldBlock label={t("quote.pricedItems.fields.areaWidth.label")} hint={t("quote.pricedItems.fields.areaWidth.hint")}>
+                              <Input
+                                type="number"
+                                min="0.001"
+                                step="0.001"
+                                value={catalogInsert.area_width}
+                                onChange={(event) => updateCatalogInsertField("area_width", event.target.value)}
+                                placeholder={t("quote.pricedItems.fields.areaWidth.placeholder")}
+                              />
+                            </FieldBlock>
+                            <FieldBlock label={t("quote.pricedItems.fields.areaLength.label")} hint={t("quote.pricedItems.fields.areaLength.hint")}>
+                              <Input
+                                type="number"
+                                min="0.001"
+                                step="0.001"
+                                value={catalogInsert.area_length}
+                                onChange={(event) => updateCatalogInsertField("area_length", event.target.value)}
+                                placeholder={t("quote.pricedItems.fields.areaLength.placeholder")}
+                              />
+                            </FieldBlock>
+                          </div>
+                        ) : null}
+
+                        {selectedPricedItem?.pricing_mode === "volume_direct" ? (
+                          <div className="grid gap-3 md:col-span-2 md:grid-cols-[minmax(0,1fr)_0.55fr] xl:col-span-1 xl:grid-cols-[minmax(0,1fr)_0.55fr]">
+                            <FieldBlock label={t("quote.pricedItems.fields.volumeAmount.label")} hint={t("quote.pricedItems.fields.volumeAmount.hint")}>
+                              <Input
+                                type="number"
+                                min="0.001"
+                                step="0.001"
+                                value={catalogInsert.volume_amount}
+                                onChange={(event) => updateCatalogInsertField("volume_amount", event.target.value)}
+                                placeholder={t("quote.pricedItems.fields.volumeAmount.placeholder")}
+                              />
+                            </FieldBlock>
+                            <FieldBlock label={t("quote.pricedItems.fields.volumeUnit.label")} hint={t("quote.pricedItems.fields.volumeUnit.hint")}>
+                              <Select
+                                value={catalogInsert.volume_unit}
+                                onValueChange={(value) => updateCatalogInsertField("volume_unit", value)}
+                              >
+                                <SelectTrigger className="h-10 w-full">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="l">l</SelectItem>
+                                  <SelectItem value="ml">ml</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FieldBlock>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      {selectedPricedItem ? (
+                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-secondary/30 px-4 py-3">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">
+                              {selectedPricedItem.description || selectedPricedItem.name}
+                            </p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {t(`quote.pricedItems.modeHints.${selectedPricedItem.pricing_mode}`)}
+                            </p>
+                          </div>
+
+                          <div className="text-right">
+                            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                              {t("quote.pricedItems.preview")}
+                            </p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {!pricedItemPreview || pricedItemPreview.quantity === null
+                                ? t("quote.pricedItems.previewPending")
+                                : t("quote.pricedItems.previewQuantity", {
+                                    quantity: formatNumberInput(pricedItemPreview.quantity),
+                                    unit: pricedItemPreview.unit,
+                                  })}
+                            </p>
+                            <p className="mt-1 font-heading text-lg font-semibold tracking-tight">
+                              {formatCurrency(pricedItemPreview?.totalCents ?? 0, form.currency, locale)}
+                            </p>
+                          </div>
+                        </div>
+                      ) : null}
+
+                      {catalogError ? (
+                        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                          {catalogError}
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
+
                   {form.line_items.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-border bg-card px-5 py-8 text-center">
                       <p className="text-sm font-medium text-foreground">{t("quote.lineItems.emptyTitle")}</p>
@@ -865,7 +1120,7 @@ function QuoteWorkspacePage() {
                               <Input
                                 type="number"
                                 min="0"
-                                step="0.1"
+                                step="0.001"
                                 value={item.quantity}
                                 onChange={(event) => updateLineItem(index, "quantity", event.target.value)}
                                 placeholder={t("quote.fields.quantity.placeholder")}
@@ -1007,6 +1262,21 @@ function toLineItemForm(item: QuoteLineItem): QuoteLineItemForm {
     unit: item.unit,
     unit_price: item.unit_price_cents === null ? "" : formatMoneyInput(item.unit_price_cents),
     needs_review: item.needs_review,
+  }
+}
+
+function buildCatalogInsertState(item: PricedItem | null): CatalogInsertState {
+  if (!item) {
+    return emptyCatalogInsertState
+  }
+
+  return {
+    priced_item_id: item.id,
+    fixed_quantity: formatNumberInput(item.default_quantity),
+    area_width: "",
+    area_length: "",
+    volume_amount: "",
+    volume_unit: "l",
   }
 }
 

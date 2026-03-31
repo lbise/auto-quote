@@ -1,5 +1,18 @@
 import type { AppLocale } from "@/lib/locale"
 
+export type PricingMode = "fixed" | "area_rectangle" | "volume_direct"
+
+export type PricedItem = {
+  id: string
+  name: string
+  description: string
+  pricing_mode: PricingMode
+  unit: string
+  unit_price_cents: number
+  default_quantity: number
+  is_active: boolean
+}
+
 export type BusinessSettings = {
   id: number
   business_name: string
@@ -11,6 +24,7 @@ export type BusinessSettings = {
   default_tax_rate: number
   default_payment_terms: string
   default_validity_days: number
+  priced_items: PricedItem[]
   updated_at: string
 }
 

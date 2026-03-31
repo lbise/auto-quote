@@ -130,6 +130,7 @@ export const resources = {
         sections: {
           businessInfo: "Informations de l'entreprise",
           defaults: "Réglages par défaut",
+          pricedItems: "Bibliothèque tarifaire",
         },
         loading: "Chargement des paramètres métier...",
         saved: "Les paramètres par défaut sont enregistrés et prêts pour la génération de devis.",
@@ -145,6 +146,10 @@ export const resources = {
         errors: {
           load: "Impossible de charger les paramètres",
           save: "Impossible d'enregistrer les paramètres",
+          pricedItemName: "Chaque article réutilisable doit avoir un nom.",
+          pricedItemPrice: "Renseignez un prix unitaire pour {{name}}.",
+          pricedItemUnit: "Renseignez une unité pour {{name}}.",
+          pricedItemQuantity: "Renseignez une quantité par défaut valide pour {{name}}.",
         },
         form: {
           businessName: {
@@ -199,6 +204,63 @@ export const resources = {
           validityDays: "{{count}} jours",
           currency: "Devise",
           language: "Langue",
+          pricedItems: "Articles actifs",
+          activePricedItems_one: "{{count}} article",
+          activePricedItems_other: "{{count}} articles",
+        },
+        catalog: {
+          description:
+            "Ajoutez vos prestations ou fournitures récurrentes pour que l'espace devis et l'assistant réutilisent vos tarifs.",
+          addItem: "Ajouter un article",
+          removeItem: "Supprimer",
+          emptyTitle: "Aucun article tarifaire",
+          emptyDescription:
+            "Ajoutez vos prestations au m2, volumes de peinture ou forfaits récurrents.",
+          untitledItem: "Article {{index}} sans titre",
+          fallbackItemName: "cet article",
+          autoUnitHint: "Unité imposée par ce type de calcul.",
+          modes: {
+            fixed: "Forfait / quantité libre",
+            area_rectangle: "Surface rectangulaire",
+            volume_direct: "Volume direct",
+          },
+          modeHints: {
+            fixed: "Le gérant choisit simplement la quantité à appliquer.",
+            area_rectangle: "Calcule la quantité depuis largeur x longueur en mètres.",
+            volume_direct: "Accepte une saisie en l ou ml puis convertit en litres.",
+          },
+          fields: {
+            name: {
+              label: "Nom interne",
+              hint: "Visible dans le sélecteur interne.",
+              placeholder: "Peinture murs intérieurs",
+            },
+            pricingMode: {
+              label: "Type de calcul",
+              hint: "Détermine comment la quantité est calculée dans le devis.",
+            },
+            description: {
+              label: "Description de ligne",
+              hint: "Texte inséré dans la ligne de devis.",
+              placeholder: "Préparation et peinture des murs intérieurs",
+            },
+            unitPrice: {
+              label: "Prix unitaire",
+              hint: "Tarif exact réutilisé sans recalcul.",
+              placeholder: "18",
+            },
+            unit: {
+              label: "Unité",
+              hint: "Seulement pour les éléments à quantité libre.",
+              placeholder: "forfait",
+            },
+            defaultQuantity: {
+              label: "Quantité par défaut",
+              hint: "Préremplie lors de l'ajout au devis.",
+              placeholder: "1",
+            },
+            active: "Disponible dans les nouveaux devis et pour l'assistant",
+          },
         },
         assistantInputs: {
           title: "Entrées de l'assistant",
@@ -383,6 +445,58 @@ export const resources = {
           needsReview: "À revoir",
           lineTotalPreview: "Aperçu du total de ligne",
         },
+        pricedItems: {
+          title: "Ajouter depuis la bibliothèque",
+          description:
+            "Réutilisez vos tarifs enregistrés et laissez l'outil calculer la surface ou le volume.",
+          add: "Ajouter au devis",
+          emptyTitle: "Aucune bibliothèque tarifaire active",
+          emptyDescription: "Ajoutez d'abord vos articles réutilisables dans les paramètres.",
+          goToSettings: "Configurer les tarifs",
+          preview: "Aperçu",
+          previewPending: "Complétez les mesures pour calculer la ligne.",
+          previewQuantity: "{{quantity}} {{unit}}",
+          modeHints: {
+            fixed: "Quantité libre avec tarif enregistré.",
+            area_rectangle: "Surface calculée depuis largeur x longueur.",
+            volume_direct: "Volume saisi en l ou ml, enregistré en litres.",
+          },
+          fields: {
+            item: {
+              label: "Article réutilisable",
+              hint: "Choisissez un tarif enregistré.",
+            },
+            fixedQuantity: {
+              label: "Quantité",
+              hint: "Quantité à appliquer pour cette ligne.",
+              placeholder: "1",
+            },
+            areaWidth: {
+              label: "Largeur (m)",
+              hint: "Largeur du rectangle en mètres.",
+              placeholder: "5",
+            },
+            areaLength: {
+              label: "Longueur (m)",
+              hint: "Longueur du rectangle en mètres.",
+              placeholder: "5",
+            },
+            volumeAmount: {
+              label: "Volume",
+              hint: "Vous pouvez saisir des litres ou des millilitres.",
+              placeholder: "20",
+            },
+            volumeUnit: {
+              label: "Unité",
+              hint: "La ligne sera enregistrée en litres.",
+            },
+          },
+          errors: {
+            fixed: "Renseignez une quantité valide avant d'ajouter cette ligne.",
+            area_rectangle: "Renseignez largeur et longueur en mètres.",
+            volume_direct: "Renseignez un volume valide en l ou ml.",
+          },
+        },
         review: {
           title: "Revue avant impression",
           readyToPrint: "Le devis peut être imprimé tel quel.",
@@ -550,6 +664,7 @@ export const resources = {
         sections: {
           businessInfo: "Business information",
           defaults: "Quote defaults",
+          pricedItems: "Reusable pricing library",
         },
         loading: "Loading business defaults...",
         saved: "Defaults saved and ready for quote generation.",
@@ -565,6 +680,10 @@ export const resources = {
         errors: {
           load: "Could not load settings",
           save: "Could not save settings",
+          pricedItemName: "Each reusable priced item needs a name.",
+          pricedItemPrice: "Set a unit price for {{name}}.",
+          pricedItemUnit: "Set a unit for {{name}}.",
+          pricedItemQuantity: "Set a valid default quantity for {{name}}.",
         },
         form: {
           businessName: {
@@ -619,6 +738,63 @@ export const resources = {
           validityDays: "{{count}} days",
           currency: "Currency",
           language: "Language",
+          pricedItems: "Active items",
+          activePricedItems_one: "{{count}} item",
+          activePricedItems_other: "{{count}} items",
+        },
+        catalog: {
+          description:
+            "Add your recurring services or supplies so both the quote workspace and the assistant can reuse your rates.",
+          addItem: "Add item",
+          removeItem: "Remove",
+          emptyTitle: "No priced items yet",
+          emptyDescription:
+            "Add area-based services, paint volumes, or recurring fixed-price items.",
+          untitledItem: "Untitled item {{index}}",
+          fallbackItemName: "this item",
+          autoUnitHint: "This unit is fixed by the pricing mode.",
+          modes: {
+            fixed: "Fixed / free quantity",
+            area_rectangle: "Rectangular area",
+            volume_direct: "Direct volume",
+          },
+          modeHints: {
+            fixed: "The owner simply chooses the quantity to apply.",
+            area_rectangle: "Calculates quantity from width x length in meters.",
+            volume_direct: "Accepts l or ml input and converts the result to liters.",
+          },
+          fields: {
+            name: {
+              label: "Internal name",
+              hint: "Shown in the internal picker.",
+              placeholder: "Interior wall painting",
+            },
+            pricingMode: {
+              label: "Pricing mode",
+              hint: "Controls how quantity is calculated in the workspace.",
+            },
+            description: {
+              label: "Line description",
+              hint: "Inserted into the quote line item.",
+              placeholder: "Preparation and painting of interior walls",
+            },
+            unitPrice: {
+              label: "Unit price",
+              hint: "Exact stored rate reused as-is.",
+              placeholder: "18",
+            },
+            unit: {
+              label: "Unit",
+              hint: "Only used for fixed items.",
+              placeholder: "job",
+            },
+            defaultQuantity: {
+              label: "Default quantity",
+              hint: "Prefilled when the item is added to a quote.",
+              placeholder: "1",
+            },
+            active: "Available in new quotes and for the assistant",
+          },
         },
         assistantInputs: {
           title: "Quote assistant inputs",
@@ -802,6 +978,58 @@ export const resources = {
             "Add at least one priced line item so totals can be calculated and the quote can move forward.",
           needsReview: "Needs review",
           lineTotalPreview: "Line total preview",
+        },
+        pricedItems: {
+          title: "Add from your library",
+          description:
+            "Reuse saved rates and let the workspace calculate area or volume before inserting the line.",
+          add: "Add to quote",
+          emptyTitle: "No active pricing library yet",
+          emptyDescription: "Add reusable priced items in settings first.",
+          goToSettings: "Open settings",
+          preview: "Preview",
+          previewPending: "Complete the measurements to calculate this line.",
+          previewQuantity: "{{quantity}} {{unit}}",
+          modeHints: {
+            fixed: "Free quantity with a saved rate.",
+            area_rectangle: "Area calculated from width x length.",
+            volume_direct: "Volume entered in l or ml and stored in liters.",
+          },
+          fields: {
+            item: {
+              label: "Reusable item",
+              hint: "Choose one of your saved rates.",
+            },
+            fixedQuantity: {
+              label: "Quantity",
+              hint: "Quantity to apply to this line.",
+              placeholder: "1",
+            },
+            areaWidth: {
+              label: "Width (m)",
+              hint: "Rectangle width in meters.",
+              placeholder: "5",
+            },
+            areaLength: {
+              label: "Length (m)",
+              hint: "Rectangle length in meters.",
+              placeholder: "5",
+            },
+            volumeAmount: {
+              label: "Volume",
+              hint: "You can enter liters or milliliters.",
+              placeholder: "20",
+            },
+            volumeUnit: {
+              label: "Unit",
+              hint: "The saved line item will use liters.",
+            },
+          },
+          errors: {
+            fixed: "Enter a valid quantity before adding this line item.",
+            area_rectangle: "Enter both width and length in meters.",
+            volume_direct: "Enter a valid volume in l or ml.",
+          },
         },
         review: {
           title: "Review before print",

@@ -18,6 +18,14 @@ import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { createQuote, deleteQuote, getQuotes, type QuoteListItem } from "@/lib/api"
 import { formatCurrency, formatDateTime } from "@/lib/format"
@@ -30,6 +38,7 @@ function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [deletingQuoteId, setDeletingQuoteId] = useState<number | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<QuoteListItem | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "draft" | "ready" | "sent">("all")
@@ -66,11 +75,6 @@ function DashboardPage() {
   }
 
   async function handleDeleteQuote(quote: QuoteListItem) {
-    const confirmed = window.confirm(t("dashboard.recent.confirmDelete"))
-    if (!confirmed) {
-      return
-    }
-
     setDeletingQuoteId(quote.id)
     setError(null)
 
@@ -81,6 +85,7 @@ function DashboardPage() {
       setError(toErrorMessage(deleteError, t("dashboard.errors.deleteQuote")))
     } finally {
       setDeletingQuoteId(null)
+      setDeleteTarget(null)
     }
   }
 
@@ -141,103 +146,103 @@ function DashboardPage() {
   ]
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] xl:grid-cols-[0.8fr_1.2fr]">
-      <div className="grid gap-6">
-        <Card className="relative overflow-hidden border-white/60 bg-white/75">
-          <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
-
-          <CardHeader className="relative gap-4 p-7 sm:p-8">
-            <div className="space-y-4">
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-primary">
-                {t("dashboard.eyebrow")}
-              </p>
-              <h1 className="max-w-2xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.25rem] lg:leading-[1.02]">
-                {t("dashboard.title")}
-              </h1>
-              <p className="max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
-                {t("dashboard.description")}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              <Button
-                size="lg"
-                className="h-11 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20"
-                onClick={() => void handleCreateQuote()}
-                disabled={isCreating}
-              >
-                {isCreating ? <RiLoader4Line className="size-4 animate-spin" /> : <RiAddLine className="size-4" />}
-                {isCreating ? t("dashboard.creatingDraft") : t("dashboard.newQuote")}
-              </Button>
-
-              <Button asChild variant="outline" size="lg" className="h-11 rounded-full px-5 text-sm">
-                <Link to="/settings">
-                  <RiSettings3Line className="size-4" />
-                  {t("dashboard.reviewDefaults")}
-                </Link>
-              </Button>
-            </div>
-
-            {error ? (
-              <div className="rounded-2xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
-                {error}
+    <>
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] xl:grid-cols-[0.78fr_1.22fr]">
+        {/* Left column: Hero + Stats */}
+        <div className="grid gap-5 self-start">
+          <Card>
+            <CardHeader className="gap-4 p-6">
+              <div className="space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                  {t("dashboard.eyebrow")}
+                </p>
+                <h1 className="max-w-2xl font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+                  {t("dashboard.title")}
+                </h1>
+                <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+                  {t("dashboard.description")}
+                </p>
               </div>
-            ) : null}
-          </CardHeader>
-        </Card>
 
-        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-          {stats.map((stat) => {
-            const Icon = stat.icon
+              <div className="flex flex-wrap gap-2.5 pt-1">
+                <Button
+                  onClick={() => void handleCreateQuote()}
+                  disabled={isCreating}
+                >
+                  {isCreating ? <RiLoader4Line className="size-4 animate-spin" /> : <RiAddLine className="size-4" />}
+                  {isCreating ? t("dashboard.creatingDraft") : t("dashboard.newQuote")}
+                </Button>
 
-            return (
-              <Card key={stat.label} className="border-white/60 bg-white/70">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className="mt-2 font-heading text-3xl font-semibold tracking-tight">
-                        {stat.value}
-                      </p>
+                <Button asChild variant="outline">
+                  <Link to="/settings">
+                    <RiSettings3Line className="size-4" />
+                    {t("dashboard.reviewDefaults")}
+                  </Link>
+                </Button>
+              </div>
+
+              {error ? (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+                  {error}
+                </div>
+              ) : null}
+            </CardHeader>
+          </Card>
+
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+            {stats.map((stat) => {
+              const Icon = stat.icon
+
+              return (
+                <Card key={stat.label}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                          {stat.label}
+                        </p>
+                        <p className="mt-1.5 font-heading text-2xl font-semibold tracking-tight">
+                          {stat.value}
+                        </p>
+                      </div>
+                      <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <Icon className="size-4" />
+                      </div>
                     </div>
-                    <div className="flex size-10 items-center justify-center rounded-2xl bg-secondary text-foreground">
-                      <Icon className="size-4" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
         </div>
-      </div>
 
-        <Card className="border-white/60 bg-white/75">
+        {/* Right column: Quote list */}
+        <Card>
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
             <div>
-            <CardTitle>{t("dashboard.recent.title")}</CardTitle>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {t("dashboard.recent.description")}
-            </p>
-          </div>
+              <CardTitle>{t("dashboard.recent.title")}</CardTitle>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                {t("dashboard.recent.description")}
+              </p>
+            </div>
 
-            <Button variant="outline" className="h-10 rounded-full px-4 text-sm" onClick={() => void loadQuotes()}>
-              {isLoading ? <RiLoader4Line className="size-4 animate-spin" /> : <RiTimeLine className="size-4" />}
+            <Button variant="outline" size="sm" onClick={() => void loadQuotes()}>
+              {isLoading ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiTimeLine className="size-3.5" />}
               {t("dashboard.recent.refresh")}
             </Button>
           </CardHeader>
 
           <CardContent className="grid gap-3">
-            <div className="grid gap-3 rounded-[1.5rem] border border-border/60 bg-background/65 p-4">
+            {/* Search + Filters */}
+            <div className="grid gap-3 rounded-lg border border-border/60 bg-secondary/40 p-3">
               <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                 <label className="relative block">
-                  <RiSearchLine className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <RiSearchLine className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     value={searchTerm}
                     onChange={(event) => setSearchTerm(event.target.value)}
                     placeholder={t("dashboard.filters.searchPlaceholder")}
-                    className="h-11 rounded-full bg-white/85 pl-11"
+                    className="pl-9"
                   />
                 </label>
 
@@ -245,7 +250,7 @@ function DashboardPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-11 rounded-full px-4 text-sm"
+                    size="sm"
                     onClick={() => {
                       setSearchTerm("")
                       setStatusFilter("all")
@@ -256,9 +261,9 @@ function DashboardPage() {
                 ) : null}
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="gap-2 bg-white/70">
-                  <RiFilter3Line className="size-3.5" />
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge variant="outline" className="gap-1.5 text-muted-foreground">
+                  <RiFilter3Line className="size-3" />
                   {t("dashboard.filters.status.label")}
                 </Badge>
                 {filterOptions.map((option) => (
@@ -267,10 +272,10 @@ function DashboardPage() {
                     type="button"
                     onClick={() => setStatusFilter(option.value)}
                     className={[
-                      "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                      "rounded-md border px-3 py-1.5 text-xs font-medium transition-colors",
                       statusFilter === option.value
-                        ? "border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/20"
-                        : "border-white/60 bg-white/70 text-muted-foreground hover:bg-background/85 hover:text-foreground",
+                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                        : "border-border bg-card text-muted-foreground hover:bg-secondary hover:text-foreground",
                     ].join(" ")}
                   >
                     {option.label}
@@ -279,36 +284,37 @@ function DashboardPage() {
               </div>
             </div>
 
+            {/* Quote list */}
             {isLoading ? (
-              <div className="flex min-h-80 items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background/60">
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <RiLoader4Line className="size-5 animate-spin" />
-                {t("dashboard.recent.loading")}
+              <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-border bg-secondary/30">
+                <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                  <RiLoader4Line className="size-4 animate-spin" />
+                  {t("dashboard.recent.loading")}
+                </div>
               </div>
-            </div>
             ) : quotes.length === 0 ? (
-              <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
-              <div className="space-y-2">
-                <p className="font-heading text-2xl font-semibold tracking-tight">
-                  {t("dashboard.recent.emptyTitle")}
-                </p>
-                <p className="max-w-md text-sm leading-6 text-muted-foreground">
-                  {t("dashboard.recent.emptyDescription")}
-                </p>
-              </div>
+              <div className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-border bg-secondary/30 px-6 text-center">
+                <div className="space-y-1.5">
+                  <p className="font-heading text-lg font-semibold tracking-tight">
+                    {t("dashboard.recent.emptyTitle")}
+                  </p>
+                  <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
+                    {t("dashboard.recent.emptyDescription")}
+                  </p>
+                </div>
 
-              <Button className="h-11 rounded-full px-5 text-sm font-semibold" onClick={() => void handleCreateQuote()}>
-                <RiAddLine className="size-4" />
-                {t("dashboard.recent.emptyAction")}
+                <Button onClick={() => void handleCreateQuote()}>
+                  <RiAddLine className="size-4" />
+                  {t("dashboard.recent.emptyAction")}
                 </Button>
               </div>
             ) : filteredQuotes.length === 0 ? (
-              <div className="flex min-h-80 flex-col items-center justify-center gap-4 rounded-[1.5rem] border border-dashed border-border/70 bg-background/60 px-6 text-center">
-                <div className="space-y-2">
-                  <p className="font-heading text-2xl font-semibold tracking-tight">
+              <div className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-border bg-secondary/30 px-6 text-center">
+                <div className="space-y-1.5">
+                  <p className="font-heading text-lg font-semibold tracking-tight">
                     {t("dashboard.recent.emptyFilteredTitle")}
                   </p>
-                  <p className="max-w-md text-sm leading-6 text-muted-foreground">
+                  <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
                     {t("dashboard.recent.emptyFilteredDescription")}
                   </p>
                 </div>
@@ -316,7 +322,6 @@ function DashboardPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="h-11 rounded-full px-5 text-sm"
                   onClick={() => {
                     setSearchTerm("")
                     setStatusFilter("all")
@@ -326,79 +331,106 @@ function DashboardPage() {
                 </Button>
               </div>
             ) : (
-            filteredQuotes.map((quote) => (
-              <div
-                key={quote.id}
-                className="rounded-[1.5rem] border border-border/60 bg-background/70 p-5 transition-colors hover:bg-background/85"
-              >
-                <Link to={`/quotes/${quote.id}`} className="block">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="space-y-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <QuoteStatusBadge status={quote.status} />
-                      <Badge variant="outline" className="bg-white/70 uppercase">
-                        {t(`common.localeShort.${quote.locale}`)}
-                      </Badge>
-                      <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                        {quote.quote_number}
-                      </span>
+              filteredQuotes.map((quote) => (
+                <div
+                  key={quote.id}
+                  className="group rounded-lg border border-border/70 bg-card p-4 transition-colors hover:border-border hover:shadow-sm"
+                >
+                  <Link to={`/quotes/${quote.id}`} className="block">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <QuoteStatusBadge status={quote.status} />
+                          <Badge variant="outline" className="uppercase text-muted-foreground">
+                            {t(`common.localeShort.${quote.locale}`)}
+                          </Badge>
+                          <span className="text-xs font-medium tracking-wide text-muted-foreground">
+                            {quote.quote_number}
+                          </span>
+                        </div>
+
+                        <div>
+                          <p className="font-heading text-base font-semibold tracking-tight text-foreground">
+                            {quote.title || t("common.untitledQuote")}
+                          </p>
+                          <p className="mt-0.5 text-sm text-muted-foreground">
+                            {quote.customer_company || quote.customer_name || t("dashboard.recent.missingCustomer")}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <p className="font-heading text-xl font-semibold tracking-tight">
+                          {formatCurrency(quote.total_cents, quote.currency, locale)}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {quote.pricing_complete ? t("dashboard.recent.priced") : t("dashboard.recent.needsReview")}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span>{t("dashboard.recent.lineItems", { count: quote.item_count })}</span>
+                      <span>{t("dashboard.recent.updated", { value: formatDateTime(quote.updated_at, locale) })}</span>
                     </div>
 
-                    <div>
-                      <p className="font-heading text-xl font-semibold tracking-tight text-foreground">
-                        {quote.title || t("common.untitledQuote")}
-                      </p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {quote.customer_company || quote.customer_name || t("dashboard.recent.missingCustomer")}
-                      </p>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="xs"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => setDeleteTarget(quote)}
+                        disabled={deletingQuoteId === quote.id}
+                      >
+                        {deletingQuoteId === quote.id ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiDeleteBinLine className="size-3.5" />}
+                        {deletingQuoteId === quote.id ? t("dashboard.recent.deleting") : t("dashboard.recent.delete")}
+                      </Button>
+
+                      <Link
+                        to={`/quotes/${quote.id}`}
+                        className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-foreground transition-colors hover:text-primary"
+                      >
+                        {t("dashboard.recent.openWorkspace")}
+                        <RiArrowRightUpLine className="size-3.5" />
+                      </Link>
                     </div>
                   </div>
-
-                  <div className="text-right">
-                    <p className="font-heading text-2xl font-semibold tracking-tight">
-                      {formatCurrency(quote.total_cents, quote.currency, locale)}
-                    </p>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {quote.pricing_complete ? t("dashboard.recent.priced") : t("dashboard.recent.needsReview")}
-                    </p>
-                  </div>
                 </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-                </Link>
-
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-4 text-sm text-muted-foreground">
-                  <div className="flex flex-wrap items-center gap-4">
-                    <span>{t("dashboard.recent.lineItems", { count: quote.item_count })}</span>
-                    <span>{t("dashboard.recent.updated", { value: formatDateTime(quote.updated_at, locale) })}</span>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="h-9 rounded-full px-3 text-sm text-destructive hover:bg-destructive/10 hover:text-destructive"
-                      onClick={() => void handleDeleteQuote(quote)}
-                      disabled={deletingQuoteId === quote.id}
-                    >
-                      {deletingQuoteId === quote.id ? <RiLoader4Line className="size-4 animate-spin" /> : <RiDeleteBinLine className="size-4" />}
-                      {deletingQuoteId === quote.id ? t("dashboard.recent.deleting") : t("dashboard.recent.delete")}
-                    </Button>
-
-                    <Link
-                      to={`/quotes/${quote.id}`}
-                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 font-medium text-foreground transition-colors hover:text-primary"
-                    >
-                      {t("dashboard.recent.openWorkspace")}
-                      <RiArrowRightUpLine className="size-4" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
-    </div>
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteTarget !== null} onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("dashboard.recent.confirmDeleteTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("dashboard.recent.confirmDelete")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
+              {t("dashboard.recent.confirmDeleteCancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={deletingQuoteId !== null}
+              onClick={() => deleteTarget && void handleDeleteQuote(deleteTarget)}
+            >
+              {deletingQuoteId !== null ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiDeleteBinLine className="size-3.5" />}
+              {t("dashboard.recent.confirmDeleteConfirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 

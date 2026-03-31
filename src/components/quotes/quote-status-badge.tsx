@@ -5,9 +5,9 @@ import type { QuoteStatus } from "@/lib/api"
 import { cn } from "@/lib/utils"
 
 const statusStyles: Record<QuoteStatus, string> = {
-  draft: "border-amber-200 bg-amber-50 text-amber-700",
-  ready: "border-emerald-200 bg-emerald-50 text-emerald-700",
-  sent: "border-sky-200 bg-sky-50 text-sky-700",
+  draft: "border-amber-300/60 bg-amber-50 text-amber-800",
+  ready: "border-emerald-300/60 bg-emerald-50 text-emerald-800",
+  sent: "border-sky-300/60 bg-sky-50 text-sky-800",
 }
 
 function QuoteStatusBadge({ status, className }: { status: QuoteStatus; className?: string }) {

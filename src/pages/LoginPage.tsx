@@ -34,43 +34,43 @@ function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-svh overflow-hidden px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
-      <div className="absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(71,159,169,0.3),transparent_60%)]" />
-      <div className="absolute left-0 top-32 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(232,196,126,0.22),transparent_66%)] blur-3xl" />
-      <div className="absolute bottom-10 right-0 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(83,183,156,0.2),transparent_65%)] blur-3xl" />
+    <div className="relative min-h-svh overflow-hidden px-5 py-6 sm:px-6 lg:px-8 lg:py-8">
+      {/* Warm decorative gradients */}
+      <div className="absolute inset-x-0 top-0 h-96 bg-[radial-gradient(ellipse_at_top,oklch(0.85_0.08_40_/_0.25),transparent_60%)]" />
+      <div className="absolute left-0 top-40 h-64 w-64 rounded-full bg-[radial-gradient(circle,oklch(0.90_0.06_75_/_0.2),transparent_66%)] blur-3xl" />
 
-      <div className="relative mx-auto grid min-h-[calc(100svh-3rem)] max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="relative mx-auto grid min-h-[calc(100svh-3rem)] max-w-6xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+        {/* Hero side */}
         <section className="grid gap-6">
           <div className="space-y-5">
             <div className="flex items-center gap-3">
-              <div className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
                 <RiSparkling2Line className="size-5" />
               </div>
-              <div>
-                <p className="font-heading text-xl font-semibold tracking-tight">AutoQuote</p>
-              </div>
+              <span className="font-heading text-lg font-semibold tracking-tight">AutoQuote</span>
             </div>
 
-            <h1 className="max-w-2xl font-heading text-5xl font-semibold tracking-tight text-balance lg:text-[4.2rem] lg:leading-[0.98]">
+            <h1 className="max-w-lg font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
               {t("auth.title")}
             </h1>
-            <p className="max-w-xl text-base leading-8 text-muted-foreground sm:text-lg">
+            <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg">
               {t("auth.description")}
             </p>
           </div>
         </section>
 
-        <Card className="border-white/60 bg-white/80 shadow-2xl shadow-primary/10 backdrop-blur">
-          <CardHeader className="space-y-4 p-7 sm:p-8">
-            <div className="space-y-2">
-              <CardTitle className="font-heading text-3xl font-semibold tracking-tight">
-                {t("auth.cardTitle")}
-              </CardTitle>
-              <p className="text-sm leading-6 text-muted-foreground">{t("auth.cardDescription")}</p>
-            </div>
+        {/* Login card */}
+        <Card className="shadow-md shadow-stone-900/[0.06]">
+          <CardHeader className="space-y-3 p-6 sm:p-8">
+            <CardTitle className="font-heading text-2xl font-semibold tracking-tight">
+              {t("auth.cardTitle")}
+            </CardTitle>
+            <p className="text-sm leading-relaxed text-muted-foreground">
+              {t("auth.cardDescription")}
+            </p>
           </CardHeader>
 
-          <CardContent className="p-7 pt-0 sm:p-8 sm:pt-0">
+          <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
             <form className="grid gap-5" onSubmit={handleSubmit}>
               <Field label={t("auth.fields.username.label")} hint={t("auth.fields.username.hint")}>
                 <Input
@@ -92,7 +92,7 @@ function LoginPage() {
               </Field>
 
               {error ? (
-                <div className="rounded-2xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                   {error}
                 </div>
               ) : null}
@@ -100,7 +100,7 @@ function LoginPage() {
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20"
+                className="mt-1 w-full font-semibold"
                 disabled={isSubmitting || isLoading}
               >
                 {isSubmitting || isLoading ? (
@@ -120,11 +120,9 @@ function LoginPage() {
 
 function Field({ label, hint, children }: { label: string; hint: string; children: ReactNode }) {
   return (
-    <label className="grid gap-2">
-      <div className="space-y-1">
-        <span className="text-sm font-medium text-foreground">{label}</span>
-        <p className="text-sm leading-6 text-muted-foreground">{hint}</p>
-      </div>
+    <label className="grid gap-1.5">
+      <span className="text-sm font-medium text-foreground">{label}</span>
+      <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p>
       {children}
     </label>
   )

@@ -5,14 +5,18 @@ import {
   RiDatabase2Line,
   RiLoader4Line,
   RiRefreshLine,
+  RiSettings3Line,
   RiShieldCheckLine,
+  RiStoreLine,
   RiTranslate2,
 } from "@remixicon/react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { getSettings, updateSettings, type BusinessSettings } from "@/lib/api"
 import { defaultLocale, supportedLocales, type AppLocale } from "@/lib/locale"
@@ -146,33 +150,40 @@ function SettingsPage() {
     : []
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.28fr_0.72fr] lg:items-start">
-      <Card className="relative overflow-hidden border-white/60 bg-white/75">
-        <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
-
-        <CardHeader className="gap-5 p-7 sm:p-8">
-          <div className="space-y-4">
-            <h1 className="max-w-3xl font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.4rem] lg:leading-[1.02]">
-              {t("settings.title")}
-            </h1>
-            <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+    <div className="grid gap-5 lg:grid-cols-[1.28fr_0.72fr] lg:items-start">
+      {/* ── Main form card ── */}
+      <Card>
+        <CardContent className="pt-6">
+          {/* Page header */}
+          <div className="space-y-1.5 pb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <RiSettings3Line className="size-4" />
+              </div>
+              <h1 className="font-heading text-xl font-semibold tracking-tight text-foreground">
+                {t("settings.title")}
+              </h1>
+            </div>
+            <p className="text-sm leading-relaxed text-muted-foreground">
               {t("settings.description")}
             </p>
           </div>
 
-        </CardHeader>
+          <Separator />
 
-        <CardContent className="px-7 pb-7 sm:px-8 sm:pb-8">
           {isLoading ? (
-            <div className="flex min-h-80 items-center justify-center rounded-[1.5rem] border border-dashed border-border/70 bg-background/60">
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <RiLoader4Line className="size-5 animate-spin" />
+            <div className="flex min-h-80 items-center justify-center rounded-xl border border-dashed border-border bg-secondary/30">
+              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                <RiLoader4Line className="size-4 animate-spin" />
                 {t("settings.loading")}
               </div>
             </div>
           ) : (
-            <form className="grid gap-6" onSubmit={handleSubmit}>
-              <section className="grid gap-4 rounded-[1.75rem] border border-border/60 bg-background/65 p-5 sm:grid-cols-2">
+            <form className="mt-5 grid gap-5" onSubmit={handleSubmit}>
+              {/* Section: Business info */}
+              <section className="grid gap-4 rounded-lg border border-border/60 bg-secondary/30 p-5 sm:grid-cols-2">
+                <SectionTitle icon={RiStoreLine} title={t("settings.sections.businessInfo")} />
+
                 <FieldBlock
                   label={t("settings.form.businessName.label")}
                   hint={t("settings.form.businessName.hint")}
@@ -229,22 +240,29 @@ function SettingsPage() {
                 </div>
               </section>
 
-              <section className="grid gap-4 rounded-[1.75rem] border border-border/60 bg-background/65 p-5 sm:grid-cols-2">
+              {/* Section: Defaults */}
+              <section className="grid gap-4 rounded-lg border border-border/60 bg-secondary/30 p-5 sm:grid-cols-2">
+                <SectionTitle icon={RiTranslate2} title={t("settings.sections.defaults")} />
+
                 <FieldBlock
                   label={t("settings.form.defaultLocale.label")}
                   hint={t("settings.form.defaultLocale.hint")}
                 >
-                  <select
+                  <Select
                     value={form.default_locale}
-                    onChange={(event) => handleChange("default_locale", event.target.value)}
-                    className="flex h-11 w-full rounded-xl border border-border/70 bg-background/80 px-4 py-3 text-sm text-foreground shadow-sm transition-all outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/10"
+                    onValueChange={(value) => handleChange("default_locale", value)}
                   >
-                    {supportedLocales.map((localeOption) => (
-                      <option key={localeOption} value={localeOption}>
-                        {t(`app.language.${localeOption}`)}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-10 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {supportedLocales.map((localeOption) => (
+                        <SelectItem key={localeOption} value={localeOption}>
+                          {t(`app.language.${localeOption}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FieldBlock>
                 <FieldBlock
                   label={t("settings.form.defaultTaxRate.label")}
@@ -287,36 +305,36 @@ function SettingsPage() {
                 </div>
               </section>
 
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] border border-border/60 bg-white/70 px-4 py-4">
-                <div className="space-y-1">
+              {/* Footer bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-card px-4 py-3.5">
+                <div className="space-y-0.5">
                   <p className="text-sm font-medium text-foreground">
                     {savedMessage ?? t("settings.footer.idle")}
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-2.5">
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-11 rounded-full px-5 text-sm"
+                    size="sm"
                     onClick={() => void loadSettings()}
                   >
-                    <RiRefreshLine className={isLoading ? "size-4 animate-spin" : "size-4"} />
+                    <RiRefreshLine className={isLoading ? "size-3.5 animate-spin" : "size-3.5"} />
                     {t("settings.actions.refresh")}
                   </Button>
                   <Button
                     type="submit"
-                    size="lg"
-                    className="h-11 rounded-full px-5 text-sm font-semibold shadow-lg shadow-primary/20"
+                    size="sm"
                     disabled={isSaving}
                   >
-                    {isSaving ? <RiLoader4Line className="size-4 animate-spin" /> : <RiCheckLine className="size-4" />}
+                    {isSaving ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiCheckLine className="size-3.5" />}
                     {isSaving ? t("settings.actions.saving") : t("settings.actions.save")}
                   </Button>
                 </div>
               </div>
 
               {error ? (
-                <div className="rounded-2xl border border-destructive/20 bg-destructive/8 px-4 py-3 text-sm text-destructive">
+                <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
                   {error}
                 </div>
               ) : null}
@@ -325,34 +343,60 @@ function SettingsPage() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-6">
-        <Card className="border-white/60 bg-white/75">
-          <CardHeader>
-            <CardTitle>{t("settings.summary.title")}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
+      {/* ── Summary sidebar ── */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2.5 pb-4">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <RiDatabase2Line className="size-4" />
+            </div>
+            <p className="font-heading text-base font-semibold tracking-tight text-foreground">
+              {t("settings.summary.title")}
+            </p>
+          </div>
+
+          <div className="grid gap-2.5">
             {summary.map((stat) => {
               const Icon = stat.icon
 
               return (
-                <div key={stat.label} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                <div key={stat.label} className="rounded-lg border border-border/60 bg-secondary/30 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+                      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                         {stat.label}
                       </p>
-                      <p className="mt-2 font-heading text-2xl font-semibold tracking-tight">{stat.value}</p>
+                      <p className="mt-1.5 font-heading text-xl font-semibold tracking-tight">
+                        {stat.value}
+                      </p>
                     </div>
-                    <div className="flex size-10 items-center justify-center rounded-2xl bg-secondary text-foreground">
+                    <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Icon className="size-4" />
                     </div>
                   </div>
                 </div>
               )
             })}
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function SectionTitle({
+  icon: Icon,
+  title,
+}: {
+  icon: typeof RiStoreLine
+  title: string
+}) {
+  return (
+    <div className="sm:col-span-2 flex items-center gap-2.5 pb-1">
+      <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="size-4" />
       </div>
+      <p className="font-heading text-base font-semibold tracking-tight text-foreground">{title}</p>
     </div>
   )
 }
@@ -367,10 +411,10 @@ function FieldBlock({
   children: ReactNode
 }) {
   return (
-    <label className="grid gap-2">
-      <div className="space-y-1">
+    <label className="grid gap-1.5">
+      <div className="space-y-0.5">
         <span className="text-sm font-medium text-foreground">{label}</span>
-        <p className="text-sm leading-6 text-muted-foreground">{hint}</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p>
       </div>
       {children}
     </label>

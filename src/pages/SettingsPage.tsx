@@ -30,7 +30,7 @@ import {
 } from "@/lib/api"
 import { formatPercent } from "@/lib/format"
 import { defaultLocale, supportedLocales, type AppLocale } from "@/lib/locale"
-import { defaultUnitForPricingMode, formatNumberInput, parsePositiveNumber } from "@/lib/priced-items"
+import { defaultUnitForPricingMode, formatNumberInput, parseNumberInput, parsePositiveNumber } from "@/lib/priced-items"
 
 type PricedItemFormState = {
   id: string
@@ -62,8 +62,8 @@ const emptyForm: SettingsFormState = {
   business_phone: "",
   business_address: "",
   default_locale: defaultLocale,
-  default_currency: "USD",
-  default_tax_rate: "0",
+  default_currency: "CHF",
+  default_tax_rate: "7.7",
   default_payment_terms: "Paiement à réception",
   default_validity_days: "30",
   priced_items: [],
@@ -180,7 +180,7 @@ function SettingsPage() {
         business_address: form.business_address.trim(),
         default_locale: form.default_locale,
         default_currency: form.default_currency.trim().toUpperCase(),
-        default_tax_rate: Number(form.default_tax_rate) / 100,
+        default_tax_rate: (parseNumberInput(form.default_tax_rate) ?? 0) / 100,
         default_payment_terms: form.default_payment_terms.trim(),
         default_validity_days: Number(form.default_validity_days),
         priced_items: form.priced_items

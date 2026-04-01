@@ -31,7 +31,6 @@ def ensure_demo_users(db: Session) -> None:
             user = User(
                 username=username,
                 password_hash=hash_password(password),
-                display_name=seed["display_name"],
                 trade=seed["trade"],
                 is_active=True,
             )
@@ -52,16 +51,15 @@ def _demo_account_seeds() -> Sequence[DemoAccountSeed]:
     return [
         {
             "username": "demo",
-            "display_name": "AutoQuote Demo",
             "trade": "general",
             "settings": {
                 "business_name": "AutoQuote Demo",
-                "business_email": "demo@autoquote.test",
-                "business_phone": "+33 6 10 20 30 40",
-                "business_address": "12 rue de la Demo\n33000 Bordeaux",
+                "business_email": "demo@autoquote.ch",
+                "business_phone": "+41 21 555 01 02",
+                "business_address": "Rue du Simplon 24\n1006 Lausanne",
                 "default_locale": "fr",
-                "default_currency": "EUR",
-                "default_tax_rate": 0.2,
+                "default_currency": "CHF",
+                "default_tax_rate": 0.077,
                 "default_payment_terms": "Acompte de 30%, solde a reception du chantier",
                 "default_validity_days": 30,
                 "priced_items": [
@@ -82,16 +80,15 @@ def _demo_account_seeds() -> Sequence[DemoAccountSeed]:
         },
         {
             "username": "painter",
-            "display_name": "Atelier Couleurs",
             "trade": "painting",
             "settings": {
                 "business_name": "Atelier Couleurs",
-                "business_email": "contact@atelier-couleurs.test",
-                "business_phone": "+33 6 11 22 33 44",
-                "business_address": "18 avenue des Artisans\n44000 Nantes",
+                "business_email": "contact@atelier-couleurs.ch",
+                "business_phone": "+41 22 555 11 22",
+                "business_address": "Route de Carouge 18\n1227 Carouge GE",
                 "default_locale": "fr",
-                "default_currency": "EUR",
-                "default_tax_rate": 0.2,
+                "default_currency": "CHF",
+                "default_tax_rate": 0.077,
                 "default_payment_terms": "Acompte de 40%, solde a la livraison",
                 "default_validity_days": 21,
                 "priced_items": [
@@ -122,16 +119,15 @@ def _demo_account_seeds() -> Sequence[DemoAccountSeed]:
         },
         {
             "username": "carpenter",
-            "display_name": "Bois & Mesure",
             "trade": "carpentry",
             "settings": {
                 "business_name": "Bois & Mesure",
-                "business_email": "contact@bois-mesure.test",
-                "business_phone": "+33 6 21 31 41 51",
-                "business_address": "4 impasse des Menuisiers\n69000 Lyon",
+                "business_email": "contact@bois-mesure.ch",
+                "business_phone": "+41 21 555 31 41",
+                "business_address": "Chemin des Menuisiers 4\n1024 Ecublens VD",
                 "default_locale": "fr",
-                "default_currency": "EUR",
-                "default_tax_rate": 0.2,
+                "default_currency": "CHF",
+                "default_tax_rate": 0.077,
                 "default_payment_terms": "50% a la commande, 50% a la pose",
                 "default_validity_days": 30,
                 "priced_items": [
@@ -160,16 +156,15 @@ def _demo_account_seeds() -> Sequence[DemoAccountSeed]:
         },
         {
             "username": "electrician",
-            "display_name": "Courant Clair",
             "trade": "electrical",
             "settings": {
                 "business_name": "Courant Clair",
-                "business_email": "contact@courant-clair.test",
-                "business_phone": "+33 6 31 41 51 61",
-                "business_address": "27 boulevard Edison\n59000 Lille",
+                "business_email": "contact@courant-clair.ch",
+                "business_phone": "+41 32 555 41 51",
+                "business_address": "Avenue de la Gare 27\n2000 Neuchatel",
                 "default_locale": "fr",
-                "default_currency": "EUR",
-                "default_tax_rate": 0.2,
+                "default_currency": "CHF",
+                "default_tax_rate": 0.077,
                 "default_payment_terms": "Paiement a reception",
                 "default_validity_days": 15,
                 "priced_items": [

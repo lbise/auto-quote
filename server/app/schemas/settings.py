@@ -15,8 +15,8 @@ class SettingsBase(BaseModel):
     business_phone: str = ""
     business_address: str = ""
     default_locale: LocaleCode = "fr"
-    default_currency: str = Field(default="USD", min_length=3, max_length=8)
-    default_tax_rate: float = Field(default=0, ge=0, le=1)
+    default_currency: str = Field(default="CHF", min_length=3, max_length=8)
+    default_tax_rate: float = Field(default=0.077, ge=0, le=1)
     default_payment_terms: str = "Paiement à réception"
     default_validity_days: int = Field(default=30, ge=1, le=365)
     priced_items: list[PricedItem] = Field(default_factory=list)

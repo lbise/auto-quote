@@ -55,7 +55,7 @@ import {
 } from "@/lib/api"
 import { formatCurrency, formatDate, formatDateTime, formatPercent } from "@/lib/format"
 import { supportedLocales, type AppLocale } from "@/lib/locale"
-import { calculatePricedItemQuantity, formatNumberInput, type VolumeInputUnit } from "@/lib/priced-items"
+import { calculatePricedItemQuantity, formatNumberInput, parseNumberInput, type VolumeInputUnit } from "@/lib/priced-items"
 
 type QuoteLineItemForm = {
   description: string
@@ -278,7 +278,7 @@ function QuoteWorkspacePage() {
         notes: form.notes.trim(),
         payment_terms: form.payment_terms.trim(),
         currency: form.currency.trim().toUpperCase(),
-        tax_rate: Number(form.tax_rate || "0") / 100,
+        tax_rate: (parseNumberInput(form.tax_rate) ?? 0) / 100,
         valid_until: form.valid_until || undefined,
         line_items: form.line_items
           .filter((item) => item.description.trim() || item.unit_price.trim())
@@ -308,7 +308,7 @@ function QuoteWorkspacePage() {
     }
 
     const subtotal = form.line_items.reduce((total, item) => total + lineItemPreviewTotal(item), 0)
-    const tax = Math.round(subtotal * (Number(form.tax_rate || "0") / 100))
+    const tax = Math.round(subtotal * ((parseNumberInput(form.tax_rate) ?? 0) / 100))
     const pricingComplete =
       form.line_items.length > 0 &&
       form.line_items.every(
@@ -730,7 +730,7 @@ function QuoteWorkspacePage() {
                 <div className="mt-3 grid gap-2.5">
                   <SummaryRow label={t("quote.subtotal")} value={formatCurrency(preview.subtotal, form.currency, locale)} />
                   <SummaryRow
-                    label={t("quote.tax", { value: formatPercent(Number(form.tax_rate || "0") / 100, locale) })}
+                    label={t("quote.tax", { value: formatPercent((parseNumberInput(form.tax_rate) ?? 0) / 100, locale) })}
                     value={formatCurrency(preview.tax, form.currency, locale)}
                   />
                   <Separator />
@@ -840,7 +840,7 @@ function QuoteWorkspacePage() {
                   <p className="text-sm font-semibold tracking-tight text-foreground">
                     {quote.quote_number}
                     <span className="ml-2 text-xs font-normal text-muted-foreground">
-                      {t("quote.defaultTax", { value: formatPercent(Number(form.tax_rate || "0") / 100, locale) })}
+                      {t("quote.defaultTax", { value: formatPercent((parseNumberInput(form.tax_rate) ?? 0) / 100, locale) })}
                     </span>
                   </p>
                 </div>

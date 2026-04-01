@@ -49,8 +49,8 @@ class QuoteBase(BaseModel):
     assumptions: str = ""
     notes: str = ""
     payment_terms: str = "Paiement à réception"
-    currency: str = Field(default="USD", min_length=3, max_length=8)
-    tax_rate: float = Field(default=0, ge=0, le=1)
+    currency: str = Field(default="CHF", min_length=3, max_length=8)
+    tax_rate: float = Field(default=0.077, ge=0, le=1)
     valid_until: date | None = None
 
 

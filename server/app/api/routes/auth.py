@@ -71,6 +71,5 @@ def _build_session_response(user: User | None) -> AuthSessionResponse:
         authenticated=True,
         user_id=user.id,
         username=user.username,
-        display_name=user.display_name,
         trade=user.trade,
     )

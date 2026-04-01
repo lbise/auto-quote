@@ -10,5 +10,4 @@ class AuthSessionResponse(BaseModel):
     authenticated: bool
     user_id: int | None = None
     username: str | None = None
-    display_name: str | None = None
     trade: str | None = None

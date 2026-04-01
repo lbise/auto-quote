@@ -14,7 +14,6 @@ class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     username: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(Text)
-    display_name: Mapped[str] = mapped_column(String(120), default="")
     trade: Mapped[str | None] = mapped_column(String(64), nullable=True, default=None)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(

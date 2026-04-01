@@ -14,14 +14,23 @@ export function defaultUnitForPricingMode(mode: PricingMode, customUnit = "job")
   return customUnit.trim() || "job"
 }
 
-export function parsePositiveNumber(value: string): number | null {
-  const normalized = value.trim()
+export function parseNumberInput(value: string): number | null {
+  const normalized = value.trim().replace(",", ".")
   if (!normalized) {
     return null
   }
 
   const parsed = Number(normalized)
-  if (!Number.isFinite(parsed) || parsed <= 0) {
+  if (!Number.isFinite(parsed)) {
+    return null
+  }
+
+  return parsed
+}
+
+export function parsePositiveNumber(value: string): number | null {
+  const parsed = parseNumberInput(value)
+  if (parsed === null || parsed <= 0) {
     return null
   }
 

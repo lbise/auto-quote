@@ -19,7 +19,6 @@ const unauthenticatedSession: AuthSession = {
   authenticated: false,
   user_id: null,
   username: null,
-  display_name: null,
   trade: null,
 }
 

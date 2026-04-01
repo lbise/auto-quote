@@ -178,27 +178,27 @@ export const resources = {
           businessName: {
             label: "Nom de l'entreprise",
             hint: "Apparaît sur chaque devis généré.",
-            placeholder: "Northline Painting Co.",
+            placeholder: "Atelier Couleurs Sarl",
           },
           defaultCurrency: {
             label: "Devise par défaut",
-            hint: "Code ISO utilisé pour le chiffrage.",
-            placeholder: "USD",
+            hint: "Code ISO utilisé pour le chiffrage, avec `CHF` par défaut.",
+            placeholder: "CHF",
           },
           businessEmail: {
             label: "Email de l'entreprise",
             hint: "Utilisé pour l'en-tête du devis et le suivi.",
-            placeholder: "devis@northline.co",
+            placeholder: "devis@atelier-couleurs.ch",
           },
           businessPhone: {
             label: "Téléphone de l'entreprise",
             hint: "Visible par les prospects sur le devis.",
-            placeholder: "(555) 246-8100",
+            placeholder: "+41 21 555 01 02",
           },
           businessAddress: {
             label: "Adresse de l'entreprise",
             hint: "Bloc d'adresse multi-lignes pour l'en-tête du devis.",
-            placeholder: "410 River Street\nSuite 8\nPortland, OR 97204",
+            placeholder: "Rue du Lac 12\n1007 Lausanne",
           },
           defaultLocale: {
             label: "Langue par défaut",
@@ -206,8 +206,8 @@ export const resources = {
           },
           defaultTaxRate: {
             label: "Taux de TVA par défaut",
-            hint: "Saisissez un pourcentage comme 20 pour 20 %.",
-            placeholder: "20",
+            hint: "Saisissez un pourcentage comme 7,7 pour la TVA suisse standard.",
+            placeholder: "7,7",
           },
           defaultValidityDays: {
             label: "Validité du devis",
@@ -392,27 +392,27 @@ export const resources = {
           customerName: {
             label: "Nom du client",
             hint: "Contact principal pour le devis.",
-            placeholder: "Morgan Lee",
+            placeholder: "Camille Favre",
           },
           company: {
             label: "Société",
             hint: "Nom de la société ou du site, si besoin.",
-            placeholder: "Harbor Studio",
+            placeholder: "Clinique du Lac SA",
           },
           email: {
             label: "Email",
             hint: "Utile pour le suivi et l'envoi plus tard.",
-            placeholder: "morgan@harbor.studio",
+            placeholder: "camille@cliniquedulac.ch",
           },
           phone: {
             label: "Téléphone",
             hint: "Optionnel, mais utile pour clarifier rapidement.",
-            placeholder: "(555) 901-2233",
+            placeholder: "+41 79 555 12 34",
           },
           address: {
             label: "Adresse",
             hint: "Adresse du client ou du chantier.",
-            placeholder: "410 River Street\nSuite 8\nPortland, OR 97204",
+            placeholder: "Chemin des Artisans 8\n1020 Renens VD",
           },
           locale: {
             label: "Langue du devis",
@@ -420,8 +420,8 @@ export const resources = {
           },
           currency: {
             label: "Devise",
-            hint: "Code ISO utilisé pour chaque ligne.",
-            placeholder: "USD",
+            hint: "Code ISO utilisé pour chaque ligne, avec `CHF` par défaut.",
+            placeholder: "CHF",
           },
           validUntil: {
             label: "Valide jusqu'au",
@@ -430,7 +430,7 @@ export const resources = {
           jobSummary: {
             label: "Résumé de la mission",
             hint: "Décrit précisément le travail couvert.",
-            placeholder: "Peinture intérieure d'un petit bureau avec deux salles de réunion.",
+            placeholder: "Peinture intérieure d'un cabinet médical de 120 m² à Lausanne.",
           },
           assumptions: {
             label: "Hypothèses",
@@ -751,27 +751,27 @@ export const resources = {
           businessName: {
             label: "Business name",
             hint: "Appears on every generated quote.",
-            placeholder: "Northline Painting Co.",
+            placeholder: "Atelier Couleurs Sarl",
           },
           defaultCurrency: {
             label: "Default currency",
-            hint: "ISO code used for pricing.",
-            placeholder: "USD",
+            hint: "ISO code used for pricing, with `CHF` as the default.",
+            placeholder: "CHF",
           },
           businessEmail: {
             label: "Business email",
             hint: "Used for quote headers and follow-up.",
-            placeholder: "quotes@northline.co",
+            placeholder: "quotes@atelier-couleurs.ch",
           },
           businessPhone: {
             label: "Business phone",
             hint: "Shown to prospects on the quote.",
-            placeholder: "(555) 246-8100",
+            placeholder: "+41 21 555 01 02",
           },
           businessAddress: {
             label: "Business address",
             hint: "Multi-line address block for the quote header.",
-            placeholder: "410 River Street\nSuite 8\nPortland, OR 97204",
+            placeholder: "Rue du Lac 12\n1007 Lausanne",
           },
           defaultLocale: {
             label: "Default language",
@@ -779,8 +779,8 @@ export const resources = {
           },
           defaultTaxRate: {
             label: "Default tax rate",
-            hint: "Enter a percentage like 20 for 20%.",
-            placeholder: "20",
+            hint: "Enter a percentage like 7.7 for standard Swiss VAT.",
+            placeholder: "7.7",
           },
           defaultValidityDays: {
             label: "Quote validity",
@@ -965,27 +965,27 @@ export const resources = {
           customerName: {
             label: "Customer name",
             hint: "Primary contact for the quote.",
-            placeholder: "Morgan Lee",
+            placeholder: "Camille Favre",
           },
           company: {
             label: "Company",
             hint: "Optional company or site name.",
-            placeholder: "Harbor Studio",
+            placeholder: "Clinique du Lac SA",
           },
           email: {
             label: "Email",
             hint: "Useful for quote follow-up and later send flows.",
-            placeholder: "morgan@harbor.studio",
+            placeholder: "camille@cliniquedulac.ch",
           },
           phone: {
             label: "Phone",
             hint: "Optional but helpful for quick clarifications.",
-            placeholder: "(555) 901-2233",
+            placeholder: "+41 79 555 12 34",
           },
           address: {
             label: "Address",
             hint: "Customer or job site address.",
-            placeholder: "410 River Street\nSuite 8\nPortland, OR 97204",
+            placeholder: "Chemin des Artisans 8\n1020 Renens VD",
           },
           locale: {
             label: "Quote language",
@@ -993,8 +993,8 @@ export const resources = {
           },
           currency: {
             label: "Currency",
-            hint: "ISO code used for every line item.",
-            placeholder: "USD",
+            hint: "ISO code used for every line item, with `CHF` as the default.",
+            placeholder: "CHF",
           },
           validUntil: {
             label: "Valid until",
@@ -1003,7 +1003,7 @@ export const resources = {
           jobSummary: {
             label: "Job summary",
             hint: "What the work actually covers.",
-            placeholder: "Interior repainting for a small office with two meeting rooms.",
+            placeholder: "Interior repainting for a 120 m² medical practice in Lausanne.",
           },
           assumptions: {
             label: "Assumptions",

@@ -3,15 +3,18 @@ import {
   RiAddLine,
   RiArrowLeftLine,
   RiChat3Line,
+  RiCloseLine,
   RiDeleteBinLine,
   RiErrorWarningLine,
   RiFileTextLine,
   RiLoader4Line,
+  RiMic2Line,
   RiMoneyDollarCircleLine,
   RiPrinterLine,
   RiRobot2Line,
   RiSaveLine,
   RiSendPlaneLine,
+  RiStopCircleLine,
   RiStickyNoteLine,
   RiUserLine,
 } from "@remixicon/react"
@@ -36,6 +39,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useVoiceRecorder } from "@/hooks/use-voice-recorder"
 import {
   deleteQuote,
   getQuote,
@@ -125,6 +130,16 @@ function QuoteWorkspacePage() {
   const [catalogInsert, setCatalogInsert] = useState<CatalogInsertState>(emptyCatalogInsertState)
   const [catalogError, setCatalogError] = useState<string | null>(null)
   const chatScrollRef = useRef<HTMLDivElement>(null)
+
+  const voice = useVoiceRecorder({
+    language: form?.locale,
+    onTranscript: (text) => {
+      setChatInput((current) => {
+        const trimmed = current.trimEnd()
+        return trimmed ? `${trimmed} ${text}` : text
+      })
+    },
+  })
 
   const loadQuote = useCallback(async (id: number) => {
     setIsLoading(true)
@@ -608,12 +623,54 @@ function QuoteWorkspacePage() {
 
                 {/* Chat input */}
                 <form className="mt-3 grid gap-2.5" onSubmit={handleChatSubmit}>
+                  {/* Recording indicator */}
+                  {voice.state === "recording" && (
+                    <div className="flex items-center gap-2.5 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2">
+                      <span className="relative flex size-2.5">
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary/60" />
+                        <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
+                      </span>
+                      <span className="text-xs font-medium text-primary">
+                        {t("quote.voice.recording")}
+                      </span>
+                      <span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
+                        {Math.floor(voice.elapsed / 60)}:{String(voice.elapsed % 60).padStart(2, "0")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={voice.cancel}
+                        className="ml-1 rounded-md p-0.5 text-muted-foreground transition-colors hover:text-destructive"
+                        aria-label={t("quote.voice.cancel")}
+                      >
+                        <RiCloseLine className="size-3.5" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Transcribing indicator */}
+                  {voice.state === "transcribing" && (
+                    <div className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-secondary/30 px-3 py-2">
+                      <RiLoader4Line className="size-3.5 animate-spin text-primary" />
+                      <span className="text-xs text-muted-foreground">
+                        {t("quote.voice.transcribing")}
+                      </span>
+                    </div>
+                  )}
+
                   <Textarea
                     value={chatInput}
                     onChange={(event) => setChatInput(event.target.value)}
                     placeholder={t("quote.chat.inputPlaceholder")}
                     className="min-h-20 resize-none text-[13px]"
+                    disabled={voice.state === "recording" || voice.state === "transcribing"}
                   />
+
+                  {/* Voice error */}
+                  {voice.state === "error" && voice.error ? (
+                    <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                      {t(voice.error, { defaultValue: voice.error })}
+                    </div>
+                  ) : null}
 
                   {chatError ? (
                     <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
@@ -621,14 +678,50 @@ function QuoteWorkspacePage() {
                     </div>
                   ) : null}
 
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isChatting || !chatInput.trim() || hasUnsavedChanges || isSaving || isDeleting}
-                  >
-                    {isChatting ? <RiLoader4Line className="size-4 animate-spin" /> : <RiSendPlaneLine className="size-4" />}
-                    {isChatting ? t("quote.chat.sending") : t("quote.chat.send")}
-                  </Button>
+                   <div className="flex gap-2">
+                    {voice.supported && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          {voice.state === "recording" ? (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon-sm"
+                              onClick={voice.stop}
+                              aria-label={t("quote.voice.stop")}
+                            >
+                              <RiStopCircleLine className="size-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon-sm"
+                              onClick={voice.start}
+                              disabled={voice.state === "transcribing" || isChatting}
+                              aria-label={t("quote.voice.record")}
+                            >
+                              <RiMic2Line className="size-4" />
+                            </Button>
+                          )}
+                        </TooltipTrigger>
+                        <TooltipContent side="top">
+                          {voice.state === "recording" ? t("quote.voice.stop") : t("quote.voice.record")}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    )}
+
+                    <Button
+                      type="submit"
+                      className="flex-1"
+                      disabled={isChatting || !chatInput.trim() || hasUnsavedChanges || isSaving || isDeleting || voice.state === "recording" || voice.state === "transcribing"}
+                    >
+                      {isChatting ? <RiLoader4Line className="size-4 animate-spin" /> : <RiSendPlaneLine className="size-4" />}
+                      {isChatting ? t("quote.chat.sending") : t("quote.chat.send")}
+                    </Button>
+                  </div>
                 </form>
               </TabsContent>
 

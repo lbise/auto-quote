@@ -253,3 +253,49 @@ export function sendQuoteMessage(quoteId: number, payload: QuoteChatPayload): Pr
     body: JSON.stringify(payload),
   })
 }
+
+export type TranscriptionResponse = {
+  text: string
+}
+
+const MIME_TO_EXT: Record<string, string> = {
+  "audio/webm": ".webm",
+  "audio/webm;codecs=opus": ".webm",
+  "audio/ogg": ".ogg",
+  "audio/ogg;codecs=opus": ".ogg",
+  "audio/wav": ".wav",
+  "audio/mp4": ".mp4",
+  "audio/mpeg": ".mp3",
+  "audio/flac": ".flac",
+  "audio/aac": ".aac",
+  "audio/x-m4a": ".m4a",
+}
+
+export async function transcribeAudio(file: Blob, language?: string): Promise<TranscriptionResponse> {
+  const ext = MIME_TO_EXT[file.type] ?? ".webm"
+  const formData = new FormData()
+  formData.append("file", file, `recording${ext}`)
+  if (language) {
+    formData.append("language", language)
+  }
+
+  const response = await fetch(`${API_BASE}/api/transcriptions`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  })
+
+  if (!response.ok) {
+    const contentType = response.headers.get("content-type")
+
+    if (contentType?.includes("application/json")) {
+      const data = (await response.json()) as { detail?: string }
+      throw new Error(data.detail || `Transcription failed with status ${response.status}`)
+    }
+
+    const message = await response.text()
+    throw new Error(message || `Transcription failed with status ${response.status}`)
+  }
+
+  return response.json() as Promise<TranscriptionResponse>
+}

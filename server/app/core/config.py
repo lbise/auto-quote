@@ -30,6 +30,9 @@ class Settings(BaseSettings):
         alias="OPENAI_BASE_URL",
     )
     llm_timeout_seconds: float = Field(default=30, alias="LLM_TIMEOUT_SECONDS")
+    transcription_model: str = Field(default="gemini-2.5-flash", alias="TRANSCRIPTION_MODEL")
+    transcription_timeout_seconds: float = Field(default=30, alias="TRANSCRIPTION_TIMEOUT_SECONDS")
+    transcription_max_file_bytes: int = Field(default=10 * 1024 * 1024, alias="TRANSCRIPTION_MAX_FILE_BYTES")
 
     model_config = SettingsConfigDict(
         env_file=(ROOT_DIR / ".env"),

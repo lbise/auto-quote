@@ -9,6 +9,7 @@ from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
 from app.api.routes.quotes import router as quotes_router
 from app.api.routes.settings import router as settings_router
+from app.api.routes.transcriptions import router as transcriptions_router
 from app.core.auth import SESSION_COOKIE_NAME, verify_session_token
 from app.core.config import ROOT_DIR, get_settings
 
@@ -28,6 +29,7 @@ app.include_router(auth_router, prefix="/api")
 app.include_router(health_router, prefix="/api")
 app.include_router(quotes_router, prefix="/api")
 app.include_router(settings_router, prefix="/api")
+app.include_router(transcriptions_router, prefix="/api")
 
 
 @app.middleware("http")

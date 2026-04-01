@@ -5,6 +5,7 @@ import {
   RiChat3Line,
   RiCloseLine,
   RiDeleteBinLine,
+  RiDownloadLine,
   RiErrorWarningLine,
   RiFileTextLine,
   RiLoader4Line,
@@ -120,6 +121,7 @@ function QuoteWorkspacePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isChatting, setIsChatting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -130,6 +132,7 @@ function QuoteWorkspacePage() {
   const [catalogInsert, setCatalogInsert] = useState<CatalogInsertState>(emptyCatalogInsertState)
   const [catalogError, setCatalogError] = useState<string | null>(null)
   const chatScrollRef = useRef<HTMLDivElement>(null)
+  const pdfSheetRef = useRef<HTMLElement>(null)
 
   const voice = useVoiceRecorder({
     language: form?.locale,
@@ -399,6 +402,85 @@ function QuoteWorkspacePage() {
 
   function handlePrint() {
     window.print()
+  }
+
+  async function handleDownloadPdf() {
+    if (!quote || !pdfSheetRef.current) {
+      return
+    }
+
+    const previewWindow = shouldOpenPdfPreviewWindow() ? window.open("", "_blank", "noopener,noreferrer") : null
+
+    if (previewWindow) {
+      previewWindow.document.title = t("quote.actions.downloadingPdf")
+      previewWindow.document.body.innerHTML = `<p style=\"font-family: sans-serif; padding: 24px;\">${t("quote.actions.downloadingPdf")}</p>`
+    }
+
+    setIsDownloadingPdf(true)
+    setError(null)
+
+    try {
+      if ("fonts" in document) {
+        await document.fonts.ready
+      }
+
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ])
+
+      const sheet = pdfSheetRef.current
+      const canvas = await html2canvas(sheet, {
+        backgroundColor: "#ffffff",
+        scale: Math.max(2, window.devicePixelRatio || 1),
+        useCORS: true,
+        windowWidth: sheet.scrollWidth,
+        windowHeight: sheet.scrollHeight,
+      })
+
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: "a4",
+        compress: true,
+      })
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const margin = 24
+      const usableWidth = pageWidth - margin * 2
+      const usableHeight = pageHeight - margin * 2
+      const imageHeight = (canvas.height * usableWidth) / canvas.width
+      const imageData = canvas.toDataURL("image/png")
+      let remainingHeight = imageHeight
+      let offsetY = margin
+
+      pdf.addImage(imageData, "PNG", margin, offsetY, usableWidth, imageHeight, undefined, "FAST")
+      remainingHeight -= usableHeight
+
+      while (remainingHeight > 0) {
+        offsetY -= usableHeight
+        pdf.addPage()
+        pdf.addImage(imageData, "PNG", margin, offsetY, usableWidth, imageHeight, undefined, "FAST")
+        remainingHeight -= usableHeight
+      }
+
+      const filename = buildQuotePdfFilename(quote)
+      const blob = pdf.output("blob")
+      const blobUrl = URL.createObjectURL(blob)
+
+      if (previewWindow) {
+        previewWindow.location.href = blobUrl
+      } else {
+        triggerPdfDownload(blobUrl, filename)
+      }
+
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+    } catch (downloadError) {
+      previewWindow?.close()
+      setError(toErrorMessage(downloadError, t("quote.errors.downloadPdf")))
+    } finally {
+      setIsDownloadingPdf(false)
+    }
   }
 
   function addPricedItemToQuote() {
@@ -810,8 +892,19 @@ function QuoteWorkspacePage() {
                     type="button"
                     variant="outline"
                     className="w-full"
+                    onClick={() => void handleDownloadPdf()}
+                    disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
+                  >
+                    {isDownloadingPdf ? <RiLoader4Line className="size-4 animate-spin" /> : <RiDownloadLine className="size-4" />}
+                    {isDownloadingPdf ? t("quote.actions.downloadingPdf") : t("quote.actions.downloadPdf")}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
                     onClick={handlePrint}
-                    disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting}
+                    disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
                   >
                     <RiPrinterLine className="size-4" />
                     {t("quote.actions.print")}
@@ -864,8 +957,18 @@ function QuoteWorkspacePage() {
                   type="button"
                   variant="outline"
                   size="sm"
+                  onClick={() => void handleDownloadPdf()}
+                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
+                >
+                  {isDownloadingPdf ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiDownloadLine className="size-3.5" />}
+                  {isDownloadingPdf ? t("quote.actions.downloadingPdf") : t("quote.actions.downloadPdf")}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={handlePrint}
-                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting}
+                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
                 >
                   <RiPrinterLine className="size-3.5" />
                   {t("quote.actions.print")}
@@ -1311,8 +1414,40 @@ function QuoteWorkspacePage() {
       </Dialog>
 
       <QuotePrintSheet quote={quote} settings={businessSettings} locale={locale} />
+      <QuotePrintSheet ref={pdfSheetRef} quote={quote} settings={businessSettings} locale={locale} mode="export" />
     </>
   )
+}
+
+function buildQuotePdfFilename(quote: Quote): string {
+  const baseName = `${quote.quote_number}-${quote.title || "quote"}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase()
+
+  return `${baseName || "quote"}.pdf`
+}
+
+function triggerPdfDownload(blobUrl: string, filename: string) {
+  const link = document.createElement("a")
+  link.href = blobUrl
+  link.download = filename
+  link.rel = "noopener"
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
+
+function shouldOpenPdfPreviewWindow(): boolean {
+  const userAgent = navigator.userAgent
+  const vendor = navigator.vendor
+  const isAppleVendor = vendor.includes("Apple")
+  const isCriOS = /CriOS/i.test(userAgent)
+  const isFxiOS = /FxiOS/i.test(userAgent)
+
+  return isAppleVendor && !isCriOS && !isFxiOS
 }
 
 function toFormState(quote: Quote): QuoteFormState {

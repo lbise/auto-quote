@@ -1,18 +1,21 @@
-import type { ReactNode } from "react"
+import { forwardRef, type ReactNode } from "react"
 import { useTranslation } from "react-i18next"
 
 import type { BusinessSettings, Quote } from "@/lib/api"
 import { formatCurrency, formatDate } from "@/lib/format"
+import { cn } from "@/lib/utils"
 
-function QuotePrintSheet({
-  quote,
-  settings,
-  locale,
-}: {
+const QuotePrintSheet = forwardRef<HTMLElement, {
   quote: Quote
   settings: BusinessSettings | null
   locale?: string
-}) {
+  mode?: "print" | "export"
+}>(function QuotePrintSheet({
+  quote,
+  settings,
+  locale,
+  mode = "print",
+}, ref) {
   const { t } = useTranslation()
 
   const reviewItems = quote.line_items.filter(
@@ -20,8 +23,18 @@ function QuotePrintSheet({
   )
 
   return (
-    <section className="print-sheet hidden text-slate-900">
-      <div className="mx-auto max-w-5xl bg-white px-10 py-10">
+    <section
+      ref={ref}
+      className={cn(
+        "text-slate-900",
+        mode === "print"
+          ? "print-sheet hidden"
+          : "pointer-events-none fixed top-0 left-0 -z-50 block w-[1120px] bg-white"
+      )}
+      data-print-hidden={mode === "export" ? "true" : undefined}
+      aria-hidden={mode === "export" ? true : undefined}
+    >
+      <div className={cn("mx-auto bg-white px-10 py-10", mode === "print" ? "max-w-5xl" : "w-full max-w-none")}>
         <header className="grid gap-8 border-b border-slate-200 pb-8 md:grid-cols-[1.15fr_0.85fr]">
           <div className="space-y-4">
             <div>
@@ -169,7 +182,9 @@ function QuotePrintSheet({
       </div>
     </section>
   )
-}
+})
+
+QuotePrintSheet.displayName = "QuotePrintSheet"
 
 function PrintSection({ title, children }: { title: string; children: ReactNode }) {
   return (

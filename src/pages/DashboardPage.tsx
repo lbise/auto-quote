@@ -5,7 +5,6 @@ import {
   RiDeleteBinLine,
   RiDraftLine,
   RiFileList3Line,
-  RiFilter3Line,
   RiLoader4Line,
   RiSearchLine,
   RiSettings3Line,
@@ -153,15 +152,9 @@ function DashboardPage() {
           <Card>
             <CardHeader className="gap-4 p-6">
               <div className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
-                  {t("dashboard.eyebrow")}
-                </p>
                 <h1 className="max-w-2xl font-heading text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
                   {t("dashboard.title")}
                 </h1>
-                <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  {t("dashboard.description")}
-                </p>
               </div>
 
               <div className="flex flex-wrap gap-2.5 pt-1">
@@ -218,13 +211,8 @@ function DashboardPage() {
 
         {/* Right column: Quote list */}
         <Card>
-          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
-            <div>
-              <CardTitle>{t("dashboard.recent.title")}</CardTitle>
-              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                {t("dashboard.recent.description")}
-              </p>
-            </div>
+          <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 pb-4">
+            <CardTitle>{t("dashboard.recent.title")}</CardTitle>
 
             <Button variant="outline" size="sm" onClick={() => void loadQuotes()}>
               {isLoading ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiTimeLine className="size-3.5" />}
@@ -262,10 +250,6 @@ function DashboardPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-1.5">
-                <Badge variant="outline" className="gap-1.5 text-muted-foreground">
-                  <RiFilter3Line className="size-3" />
-                  {t("dashboard.filters.status.label")}
-                </Badge>
                 {filterOptions.map((option) => (
                   <button
                     key={option.value}
@@ -294,14 +278,9 @@ function DashboardPage() {
               </div>
             ) : quotes.length === 0 ? (
               <div className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-border bg-secondary/30 px-6 text-center">
-                <div className="space-y-1.5">
-                  <p className="font-heading text-lg font-semibold tracking-tight">
-                    {t("dashboard.recent.emptyTitle")}
-                  </p>
-                  <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-                    {t("dashboard.recent.emptyDescription")}
-                  </p>
-                </div>
+                <p className="font-heading text-lg font-semibold tracking-tight">
+                  {t("dashboard.recent.emptyTitle")}
+                </p>
 
                 <Button onClick={() => void handleCreateQuote()}>
                   <RiAddLine className="size-4" />
@@ -310,14 +289,9 @@ function DashboardPage() {
               </div>
             ) : filteredQuotes.length === 0 ? (
               <div className="flex min-h-72 flex-col items-center justify-center gap-4 rounded-lg border border-dashed border-border bg-secondary/30 px-6 text-center">
-                <div className="space-y-1.5">
-                  <p className="font-heading text-lg font-semibold tracking-tight">
-                    {t("dashboard.recent.emptyFilteredTitle")}
-                  </p>
-                  <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-                    {t("dashboard.recent.emptyFilteredDescription")}
-                  </p>
-                </div>
+                <p className="font-heading text-lg font-semibold tracking-tight">
+                  {t("dashboard.recent.emptyFilteredTitle")}
+                </p>
 
                 <Button
                   type="button"

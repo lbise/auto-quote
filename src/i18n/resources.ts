@@ -156,7 +156,7 @@ export const resources = {
           pricedItems: "Bibliothèque tarifaire",
         },
         loading: "Chargement des paramètres métier...",
-        saved: "Les paramètres par défaut sont enregistrés et prêts pour la génération de devis.",
+        saved: "Paramètres enregistrés.",
         footer: {
           idle: "Ces réglages seront utilisés dans les nouveaux devis.",
           backendOwned: "",
@@ -182,7 +182,7 @@ export const resources = {
           },
           defaultCurrency: {
             label: "Devise par défaut",
-            hint: "Code ISO utilisé pour le chiffrage, avec `CHF` par défaut.",
+            hint: "Code ISO, ex. `CHF`.",
             placeholder: "CHF",
           },
           businessEmail: {
@@ -206,7 +206,7 @@ export const resources = {
           },
           defaultTaxRate: {
             label: "Taux de TVA par défaut",
-            hint: "Saisissez un pourcentage comme 7,7 pour la TVA suisse standard.",
+            hint: "Ex. `7,7`.",
             placeholder: "7,7",
           },
           defaultValidityDays: {
@@ -326,7 +326,7 @@ export const resources = {
         },
         chat: {
           hintReady: "Discutez avec l'assistant pour enrichir ce brouillon enregistré.",
-          hintSaveFirst: "Enregistrez d'abord vos modifications manuelles avant d'envoyer un message à l'assistant.",
+          hintSaveFirst: "Enregistrez avant d'utiliser l'assistant.",
           emptyTitle: "Commencez la conversation",
           emptyDescription:
             "Décrivez le projet, le besoin du client ou les informations manquantes. L'assistant posera ensuite une question ciblée ou mettra à jour le brouillon.",
@@ -464,7 +464,7 @@ export const resources = {
           },
           unitPrice: {
             label: "Prix unitaire",
-            hint: "Laissez vide pour garder la ligne à revoir.",
+            hint: "Laissez vide pour marquer à revoir.",
             placeholder: "1500",
           },
         },
@@ -541,7 +541,7 @@ export const resources = {
           readyToPrint: "Le devis peut être imprimé tel quel.",
           needsAttention_one: "{{count}} ligne demande encore une vérification.",
           needsAttention_other: "{{count}} lignes demandent encore une vérification.",
-          printHint: "Imprimez une version propre du devis avec les éléments à vérifier si besoin.",
+          printHint: "À vérifier avant impression.",
           saveBeforePrint: "Enregistrez vos modifications avant d'imprimer.",
           untitledLineItem: "Ligne {{index}} sans titre",
           reasons: {
@@ -729,7 +729,7 @@ export const resources = {
           pricedItems: "Reusable pricing library",
         },
         loading: "Loading business defaults...",
-        saved: "Defaults saved and ready for quote generation.",
+        saved: "Settings saved.",
         footer: {
           idle: "These settings will be used in new quotes.",
           backendOwned: "",
@@ -755,7 +755,7 @@ export const resources = {
           },
           defaultCurrency: {
             label: "Default currency",
-            hint: "ISO code used for pricing, with `CHF` as the default.",
+            hint: "ISO code, e.g. `CHF`.",
             placeholder: "CHF",
           },
           businessEmail: {
@@ -779,7 +779,7 @@ export const resources = {
           },
           defaultTaxRate: {
             label: "Default tax rate",
-            hint: "Enter a percentage like 7.7 for standard Swiss VAT.",
+            hint: "E.g. `7.7`.",
             placeholder: "7.7",
           },
           defaultValidityDays: {
@@ -899,7 +899,7 @@ export const resources = {
         },
         chat: {
           hintReady: "Chat with the assistant to enrich this saved draft.",
-          hintSaveFirst: "Save your manual edits before sending a message to the assistant.",
+          hintSaveFirst: "Save before using the assistant.",
           emptyTitle: "Start the conversation",
           emptyDescription:
             "Describe the project, the customer request, or the missing details. The assistant will either ask a focused question or update the draft.",
@@ -1037,7 +1037,7 @@ export const resources = {
           },
           unitPrice: {
             label: "Unit price",
-            hint: "Leave blank to keep it in review.",
+            hint: "Leave blank to mark for review.",
             placeholder: "1500",
           },
         },
@@ -1114,7 +1114,7 @@ export const resources = {
           readyToPrint: "This quote is ready to print as-is.",
           needsAttention_one: "{{count}} line item still needs review.",
           needsAttention_other: "{{count}} line items still need review.",
-          printHint: "Print a clean version of the quote, with review notes if needed.",
+          printHint: "Review before printing.",
           saveBeforePrint: "Save your changes before printing.",
           untitledLineItem: "Untitled line item {{index}}",
           reasons: {

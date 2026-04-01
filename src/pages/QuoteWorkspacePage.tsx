@@ -551,15 +551,16 @@ function QuoteWorkspacePage() {
 
               {/* ── Chat Tab ── */}
               <TabsContent value="chat" className="flex flex-col px-5 pb-5">
-                {/* Chat hint */}
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  {hasUnsavedChanges ? t("quote.chat.hintSaveFirst") : t("quote.chat.hintReady")}
-                </p>
+                {hasUnsavedChanges ? (
+                  <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                    {t("quote.chat.hintSaveFirst")}
+                  </p>
+                ) : null}
 
                 {/* Chat messages */}
                 <div
                   ref={chatScrollRef}
-                  className="mt-3 flex max-h-[28rem] min-h-[14rem] flex-col gap-2.5 overflow-y-auto rounded-lg border border-border/60 bg-secondary/30 p-3"
+                  className={`${hasUnsavedChanges ? "mt-3" : "mt-4"} flex max-h-[28rem] min-h-[14rem] flex-col gap-2.5 overflow-y-auto rounded-lg border border-border/60 bg-secondary/30 p-3`}
                 >
                   {quote.messages.length === 0 ? (
                     <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-8 text-center">
@@ -568,9 +569,6 @@ function QuoteWorkspacePage() {
                       </div>
                       <p className="font-heading text-sm font-semibold tracking-tight">
                         {t("quote.chat.emptyTitle")}
-                      </p>
-                      <p className="max-w-xs text-xs leading-relaxed text-muted-foreground">
-                        {t("quote.chat.emptyDescription")}
                       </p>
                     </div>
                   ) : (
@@ -678,39 +676,39 @@ function QuoteWorkspacePage() {
                     </div>
                   ) : null}
 
-                   <div className="flex gap-2">
+                  <div className="flex gap-2">
                     {voice.supported && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          {voice.state === "recording" ? (
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="icon-sm"
-                              onClick={voice.stop}
-                              aria-label={t("quote.voice.stop")}
-                            >
-                              <RiStopCircleLine className="size-4" />
-                            </Button>
-                          ) : (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon-sm"
-                              onClick={voice.start}
-                              disabled={voice.state === "transcribing" || isChatting}
-                              aria-label={t("quote.voice.record")}
-                            >
-                              <RiMic2Line className="size-4" />
-                            </Button>
-                          )}
-                        </TooltipTrigger>
-                        <TooltipContent side="top">
-                          {voice.state === "recording" ? t("quote.voice.stop") : t("quote.voice.record")}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            {voice.state === "recording" ? (
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon-sm"
+                                onClick={voice.stop}
+                                aria-label={t("quote.voice.stop")}
+                              >
+                                <RiStopCircleLine className="size-4" />
+                              </Button>
+                            ) : (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon-sm"
+                                onClick={voice.start}
+                                disabled={voice.state === "transcribing" || isChatting}
+                                aria-label={t("quote.voice.record")}
+                              >
+                                <RiMic2Line className="size-4" />
+                              </Button>
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            {voice.state === "recording" ? t("quote.voice.stop") : t("quote.voice.record")}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     )}
 
                     <Button
@@ -788,9 +786,11 @@ function QuoteWorkspacePage() {
                             ? t("quote.review.needsAttention", { count: reviewItems.length })
                             : t("quote.review.readyToPrint")}
                         </p>
-                        <p className="mt-0.5 text-xs opacity-80">
-                          {hasUnsavedChanges ? t("quote.review.saveBeforePrint") : t("quote.review.printHint")}
-                        </p>
+                        {hasUnsavedChanges ? (
+                          <p className="mt-0.5 text-xs opacity-80">{t("quote.review.saveBeforePrint")}</p>
+                        ) : reviewItems.length > 0 ? (
+                          <p className="mt-0.5 text-xs opacity-80">{t("quote.review.printHint")}</p>
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -834,9 +834,6 @@ function QuoteWorkspacePage() {
                   </Link>
                 </Button>
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-primary">
-                    {t("quote.editorEyebrow")}
-                  </p>
                   <p className="text-sm font-semibold tracking-tight text-foreground">
                     {quote.quote_number}
                     <span className="ml-2 text-xs font-normal text-muted-foreground">
@@ -894,14 +891,14 @@ function QuoteWorkspacePage() {
                 <section className="grid gap-4 rounded-lg border border-border/60 bg-secondary/30 p-5 sm:grid-cols-2">
                   <SectionTitle icon={RiUserLine} title={t("quote.sections.customerBasics")} />
 
-                  <FieldBlock label={t("quote.fields.quoteTitle.label")} hint={t("quote.fields.quoteTitle.hint")}>
+                  <FieldBlock label={t("quote.fields.quoteTitle.label")}>
                     <Input
                       value={form.title}
                       onChange={(event) => updateField("title", event.target.value)}
                       placeholder={t("quote.fields.quoteTitle.placeholder")}
                     />
                   </FieldBlock>
-                  <FieldBlock label={t("quote.fields.status.label")} hint={t("quote.fields.status.hint")}>
+                  <FieldBlock label={t("quote.fields.status.label")}>
                     <Select
                       value={form.status}
                       onValueChange={(value) => updateField("status", value)}
@@ -916,21 +913,21 @@ function QuoteWorkspacePage() {
                       </SelectContent>
                     </Select>
                   </FieldBlock>
-                  <FieldBlock label={t("quote.fields.customerName.label")} hint={t("quote.fields.customerName.hint")}>
+                  <FieldBlock label={t("quote.fields.customerName.label")}>
                     <Input
                       value={form.customer_name}
                       onChange={(event) => updateField("customer_name", event.target.value)}
                       placeholder={t("quote.fields.customerName.placeholder")}
                     />
                   </FieldBlock>
-                  <FieldBlock label={t("quote.fields.company.label")} hint={t("quote.fields.company.hint")}>
+                  <FieldBlock label={t("quote.fields.company.label")}>
                     <Input
                       value={form.customer_company}
                       onChange={(event) => updateField("customer_company", event.target.value)}
                       placeholder={t("quote.fields.company.placeholder")}
                     />
                   </FieldBlock>
-                  <FieldBlock label={t("quote.fields.email.label")} hint={t("quote.fields.email.hint")}>
+                  <FieldBlock label={t("quote.fields.email.label")}>
                     <Input
                       type="email"
                       value={form.customer_email}
@@ -938,7 +935,7 @@ function QuoteWorkspacePage() {
                       placeholder={t("quote.fields.email.placeholder")}
                     />
                   </FieldBlock>
-                  <FieldBlock label={t("quote.fields.phone.label")} hint={t("quote.fields.phone.hint")}>
+                  <FieldBlock label={t("quote.fields.phone.label")}>
                     <Input
                       value={form.customer_phone}
                       onChange={(event) => updateField("customer_phone", event.target.value)}
@@ -946,7 +943,7 @@ function QuoteWorkspacePage() {
                     />
                   </FieldBlock>
                   <div className="sm:col-span-2">
-                    <FieldBlock label={t("quote.fields.address.label")} hint={t("quote.fields.address.hint")}>
+                    <FieldBlock label={t("quote.fields.address.label")}>
                       <Textarea
                         value={form.customer_address}
                         onChange={(event) => updateField("customer_address", event.target.value)}
@@ -960,7 +957,7 @@ function QuoteWorkspacePage() {
                 <section className="grid gap-4 rounded-lg border border-border/60 bg-secondary/30 p-5 sm:grid-cols-2">
                   <SectionTitle icon={RiFileTextLine} title={t("quote.sections.scopeAndTerms")} />
 
-                  <FieldBlock label={t("quote.fields.locale.label")} hint={t("quote.fields.locale.hint")}>
+                  <FieldBlock label={t("quote.fields.locale.label")}>
                     <Select
                       value={form.locale}
                       onValueChange={(value) => updateField("locale", value)}
@@ -977,7 +974,7 @@ function QuoteWorkspacePage() {
                       </SelectContent>
                     </Select>
                   </FieldBlock>
-                  <FieldBlock label={t("quote.fields.currency.label")} hint={t("quote.fields.currency.hint")}>
+                  <FieldBlock label={t("quote.fields.currency.label")}>
                     <Input
                       value={form.currency}
                       onChange={(event) => updateField("currency", event.target.value)}
@@ -985,11 +982,11 @@ function QuoteWorkspacePage() {
                       maxLength={8}
                     />
                   </FieldBlock>
-                  <FieldBlock label={t("quote.fields.validUntil.label")} hint={t("quote.fields.validUntil.hint")}>
+                  <FieldBlock label={t("quote.fields.validUntil.label")}>
                     <Input type="date" value={form.valid_until} onChange={(event) => updateField("valid_until", event.target.value)} />
                   </FieldBlock>
                   <div className="sm:col-span-2">
-                    <FieldBlock label={t("quote.fields.jobSummary.label")} hint={t("quote.fields.jobSummary.hint")}>
+                    <FieldBlock label={t("quote.fields.jobSummary.label")}>
                       <Textarea
                         value={form.job_summary}
                         onChange={(event) => updateField("job_summary", event.target.value)}
@@ -998,7 +995,7 @@ function QuoteWorkspacePage() {
                     </FieldBlock>
                   </div>
                   <div className="sm:col-span-2">
-                    <FieldBlock label={t("quote.fields.assumptions.label")} hint={t("quote.fields.assumptions.hint")}>
+                    <FieldBlock label={t("quote.fields.assumptions.label")}>
                       <Textarea
                         value={form.assumptions}
                         onChange={(event) => updateField("assumptions", event.target.value)}
@@ -1007,7 +1004,7 @@ function QuoteWorkspacePage() {
                     </FieldBlock>
                   </div>
                   <div className="sm:col-span-2">
-                    <FieldBlock label={t("quote.fields.paymentTerms.label")} hint={t("quote.fields.paymentTerms.hint")}>
+                    <FieldBlock label={t("quote.fields.paymentTerms.label")}>
                       <Textarea
                         value={form.payment_terms}
                         onChange={(event) => updateField("payment_terms", event.target.value)}
@@ -1016,7 +1013,7 @@ function QuoteWorkspacePage() {
                     </FieldBlock>
                   </div>
                   <div className="sm:col-span-2">
-                    <FieldBlock label={t("quote.fields.internalNotes.label")} hint={t("quote.fields.internalNotes.hint")}>
+                    <FieldBlock label={t("quote.fields.internalNotes.label")}>
                       <Textarea
                         value={form.notes}
                         onChange={(event) => updateField("notes", event.target.value)}
@@ -1039,7 +1036,6 @@ function QuoteWorkspacePage() {
                   {activePricedItems.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-border bg-card px-4 py-5 text-sm text-muted-foreground">
                       <p className="font-medium text-foreground">{t("quote.pricedItems.emptyTitle")}</p>
-                      <p className="mt-1.5 leading-relaxed">{t("quote.pricedItems.emptyDescription")}</p>
                       <Button asChild variant="outline" size="sm" className="mt-3">
                         <Link to="/settings">{t("quote.pricedItems.goToSettings")}</Link>
                       </Button>
@@ -1047,12 +1043,7 @@ function QuoteWorkspacePage() {
                   ) : (
                     <div className="grid gap-4 rounded-lg border border-border/60 bg-card p-4">
                       <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{t("quote.pricedItems.title")}</p>
-                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                            {t("quote.pricedItems.description")}
-                          </p>
-                        </div>
+                        <p className="text-sm font-medium text-foreground">{t("quote.pricedItems.title")}</p>
 
                         <Button type="button" size="sm" onClick={addPricedItemToQuote} disabled={!selectedPricedItem}>
                           <RiAddLine className="size-3.5" />
@@ -1061,7 +1052,7 @@ function QuoteWorkspacePage() {
                       </div>
 
                       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1.15fr)_0.85fr]">
-                        <FieldBlock label={t("quote.pricedItems.fields.item.label")} hint={t("quote.pricedItems.fields.item.hint")}>
+                        <FieldBlock label={t("quote.pricedItems.fields.item.label")}>
                           <Select value={selectedPricedItem?.id ?? ""} onValueChange={selectPricedItem}>
                             <SelectTrigger className="h-10 w-full">
                               <SelectValue />
@@ -1077,7 +1068,7 @@ function QuoteWorkspacePage() {
                         </FieldBlock>
 
                         {selectedPricedItem?.pricing_mode === "fixed" ? (
-                          <FieldBlock label={t("quote.pricedItems.fields.fixedQuantity.label")} hint={t("quote.pricedItems.fields.fixedQuantity.hint")}>
+                          <FieldBlock label={t("quote.pricedItems.fields.fixedQuantity.label")}>
                             <Input
                               type="number"
                               min="0.001"
@@ -1091,7 +1082,7 @@ function QuoteWorkspacePage() {
 
                         {selectedPricedItem?.pricing_mode === "area_rectangle" ? (
                           <div className="grid gap-3 md:col-span-2 md:grid-cols-2 xl:col-span-1 xl:grid-cols-2">
-                            <FieldBlock label={t("quote.pricedItems.fields.areaWidth.label")} hint={t("quote.pricedItems.fields.areaWidth.hint")}>
+                            <FieldBlock label={t("quote.pricedItems.fields.areaWidth.label")}>
                               <Input
                                 type="number"
                                 min="0.001"
@@ -1101,7 +1092,7 @@ function QuoteWorkspacePage() {
                                 placeholder={t("quote.pricedItems.fields.areaWidth.placeholder")}
                               />
                             </FieldBlock>
-                            <FieldBlock label={t("quote.pricedItems.fields.areaLength.label")} hint={t("quote.pricedItems.fields.areaLength.hint")}>
+                            <FieldBlock label={t("quote.pricedItems.fields.areaLength.label")}>
                               <Input
                                 type="number"
                                 min="0.001"
@@ -1116,7 +1107,7 @@ function QuoteWorkspacePage() {
 
                         {selectedPricedItem?.pricing_mode === "volume_direct" ? (
                           <div className="grid gap-3 md:col-span-2 md:grid-cols-[minmax(0,1fr)_0.55fr] xl:col-span-1 xl:grid-cols-[minmax(0,1fr)_0.55fr]">
-                            <FieldBlock label={t("quote.pricedItems.fields.volumeAmount.label")} hint={t("quote.pricedItems.fields.volumeAmount.hint")}>
+                            <FieldBlock label={t("quote.pricedItems.fields.volumeAmount.label")}>
                               <Input
                                 type="number"
                                 min="0.001"
@@ -1126,7 +1117,7 @@ function QuoteWorkspacePage() {
                                 placeholder={t("quote.pricedItems.fields.volumeAmount.placeholder")}
                               />
                             </FieldBlock>
-                            <FieldBlock label={t("quote.pricedItems.fields.volumeUnit.label")} hint={t("quote.pricedItems.fields.volumeUnit.hint")}>
+                            <FieldBlock label={t("quote.pricedItems.fields.volumeUnit.label")}>
                               <Select
                                 value={catalogInsert.volume_unit}
                                 onValueChange={(value) => updateCatalogInsertField("volume_unit", value)}
@@ -1185,9 +1176,6 @@ function QuoteWorkspacePage() {
                   {form.line_items.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-border bg-card px-5 py-8 text-center">
                       <p className="text-sm font-medium text-foreground">{t("quote.lineItems.emptyTitle")}</p>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                        {t("quote.lineItems.emptyDescription")}
-                      </p>
                     </div>
                   ) : (
                     <div className="grid gap-3">
@@ -1202,14 +1190,14 @@ function QuoteWorkspacePage() {
                           ].join(" ")}
                         >
                           <div className="grid gap-3 md:grid-cols-[minmax(0,1.4fr)_0.55fr_0.55fr_0.7fr_auto]">
-                            <FieldBlock label={t("quote.fields.description.label")} hint={t("quote.fields.description.hint")}>
+                            <FieldBlock label={t("quote.fields.description.label")}>
                               <Input
                                 value={item.description}
                                 onChange={(event) => updateLineItem(index, "description", event.target.value)}
                                 placeholder={t("quote.fields.description.placeholder")}
                               />
                             </FieldBlock>
-                            <FieldBlock label={t("quote.fields.quantity.label")} hint={t("quote.fields.quantity.hint")}>
+                            <FieldBlock label={t("quote.fields.quantity.label")}>
                               <Input
                                 type="number"
                                 min="0"
@@ -1219,7 +1207,7 @@ function QuoteWorkspacePage() {
                                 placeholder={t("quote.fields.quantity.placeholder")}
                               />
                             </FieldBlock>
-                            <FieldBlock label={t("quote.fields.unit.label")} hint={t("quote.fields.unit.hint")}>
+                            <FieldBlock label={t("quote.fields.unit.label")}>
                               <Input
                                 value={item.unit}
                                 onChange={(event) => updateLineItem(index, "unit", event.target.value)}
@@ -1424,14 +1412,14 @@ function FieldBlock({
   children,
 }: {
   label: string
-  hint: string
+  hint?: string
   children: ReactNode
 }) {
   return (
     <label className="grid gap-1.5">
       <div className="space-y-0.5">
         <span className="text-sm font-medium text-foreground">{label}</span>
-        <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p>
+        {hint ? <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p> : null}
       </div>
       {children}
     </label>

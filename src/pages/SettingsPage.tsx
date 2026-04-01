@@ -256,9 +256,6 @@ function SettingsPage() {
                 {t("settings.title")}
               </h1>
             </div>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t("settings.description")}
-            </p>
           </div>
 
           <Separator />
@@ -277,7 +274,6 @@ function SettingsPage() {
 
                 <FieldBlock
                   label={t("settings.form.businessName.label")}
-                  hint={t("settings.form.businessName.hint")}
                 >
                   <Input
                     value={form.business_name}
@@ -298,7 +294,6 @@ function SettingsPage() {
                 </FieldBlock>
                 <FieldBlock
                   label={t("settings.form.businessEmail.label")}
-                  hint={t("settings.form.businessEmail.hint")}
                 >
                   <Input
                     type="email"
@@ -309,7 +304,6 @@ function SettingsPage() {
                 </FieldBlock>
                 <FieldBlock
                   label={t("settings.form.businessPhone.label")}
-                  hint={t("settings.form.businessPhone.hint")}
                 >
                   <Input
                     value={form.business_phone}
@@ -320,7 +314,6 @@ function SettingsPage() {
                 <div className="sm:col-span-2">
                   <FieldBlock
                     label={t("settings.form.businessAddress.label")}
-                    hint={t("settings.form.businessAddress.hint")}
                   >
                     <Textarea
                       value={form.business_address}
@@ -336,7 +329,6 @@ function SettingsPage() {
 
                 <FieldBlock
                   label={t("settings.form.defaultLocale.label")}
-                  hint={t("settings.form.defaultLocale.hint")}
                 >
                   <Select
                     value={form.default_locale}
@@ -370,7 +362,6 @@ function SettingsPage() {
                 </FieldBlock>
                 <FieldBlock
                   label={t("settings.form.defaultValidityDays.label")}
-                  hint={t("settings.form.defaultValidityDays.hint")}
                 >
                   <Input
                     type="number"
@@ -384,7 +375,6 @@ function SettingsPage() {
                 <div className="sm:col-span-2">
                   <FieldBlock
                     label={t("settings.form.defaultPaymentTerms.label")}
-                    hint={t("settings.form.defaultPaymentTerms.hint")}
                   >
                     <Textarea
                       value={form.default_payment_terms}
@@ -397,12 +387,7 @@ function SettingsPage() {
 
               <section className="grid gap-4 rounded-lg border border-border/60 bg-secondary/30 p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="space-y-2">
-                    <SectionTitle icon={RiMoneyDollarCircleLine} title={t("settings.sections.pricedItems")} />
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {t("settings.catalog.description")}
-                    </p>
-                  </div>
+                  <SectionTitle icon={RiMoneyDollarCircleLine} title={t("settings.sections.pricedItems")} />
 
                   <Button type="button" variant="outline" size="sm" onClick={addPricedItem}>
                     <RiAddLine className="size-3.5" />
@@ -413,9 +398,6 @@ function SettingsPage() {
                 {form.priced_items.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-border bg-card px-4 py-6 text-center">
                     <p className="text-sm font-medium text-foreground">{t("settings.catalog.emptyTitle")}</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                      {t("settings.catalog.emptyDescription")}
-                    </p>
                   </div>
                 ) : (
                   <div className="grid gap-4">
@@ -448,7 +430,6 @@ function SettingsPage() {
                         <div className="grid gap-4 md:grid-cols-2">
                           <FieldBlock
                             label={t("settings.catalog.fields.name.label")}
-                            hint={t("settings.catalog.fields.name.hint")}
                           >
                             <Input
                               value={item.name}
@@ -459,7 +440,6 @@ function SettingsPage() {
 
                           <FieldBlock
                             label={t("settings.catalog.fields.pricingMode.label")}
-                            hint={t("settings.catalog.fields.pricingMode.hint")}
                           >
                             <Select
                               value={item.pricing_mode}
@@ -479,7 +459,6 @@ function SettingsPage() {
                           <div className="md:col-span-2">
                             <FieldBlock
                               label={t("settings.catalog.fields.description.label")}
-                              hint={t("settings.catalog.fields.description.hint")}
                             >
                               <Input
                                 value={item.description}
@@ -491,7 +470,6 @@ function SettingsPage() {
 
                           <FieldBlock
                             label={t("settings.catalog.fields.unitPrice.label")}
-                            hint={t("settings.catalog.fields.unitPrice.hint")}
                           >
                             <Input
                               type="number"
@@ -507,7 +485,6 @@ function SettingsPage() {
                             <>
                               <FieldBlock
                                 label={t("settings.catalog.fields.unit.label")}
-                                hint={t("settings.catalog.fields.unit.hint")}
                               >
                                 <Input
                                   value={item.unit}
@@ -517,7 +494,6 @@ function SettingsPage() {
                               </FieldBlock>
                               <FieldBlock
                                 label={t("settings.catalog.fields.defaultQuantity.label")}
-                                hint={t("settings.catalog.fields.defaultQuantity.hint")}
                               >
                                 <Input
                                   type="number"
@@ -557,12 +533,8 @@ function SettingsPage() {
               </section>
 
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/60 bg-card px-4 py-3.5">
-                <div className="space-y-0.5">
-                  <p className="text-sm font-medium text-foreground">
-                    {savedMessage ?? t("settings.footer.idle")}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2.5">
+                {savedMessage ? <p className="text-sm font-medium text-foreground">{savedMessage}</p> : null}
+                <div className={`flex flex-wrap items-center gap-2.5 ${savedMessage ? "" : "ml-auto"}`}>
                   <Button
                     type="button"
                     variant="outline"
@@ -759,14 +731,14 @@ function FieldBlock({
   children,
 }: {
   label: string
-  hint: string
+  hint?: string
   children: ReactNode
 }) {
   return (
     <label className="grid gap-1.5">
       <div className="space-y-0.5">
         <span className="text-sm font-medium text-foreground">{label}</span>
-        <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p>
+        {hint ? <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p> : null}
       </div>
       {children}
     </label>

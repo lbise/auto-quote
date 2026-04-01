@@ -19,22 +19,18 @@ function LoginPage() {
     {
       username: "demo",
       title: t("auth.demoAccounts.accounts.demo.title"),
-      description: t("auth.demoAccounts.accounts.demo.description"),
     },
     {
       username: "painter",
       title: t("auth.demoAccounts.accounts.painter.title"),
-      description: t("auth.demoAccounts.accounts.painter.description"),
     },
     {
       username: "carpenter",
       title: t("auth.demoAccounts.accounts.carpenter.title"),
-      description: t("auth.demoAccounts.accounts.carpenter.description"),
     },
     {
       username: "electrician",
       title: t("auth.demoAccounts.accounts.electrician.title"),
-      description: t("auth.demoAccounts.accounts.electrician.description"),
     },
   ]
 
@@ -75,32 +71,19 @@ function LoginPage() {
             <h1 className="max-w-lg font-heading text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-[3.5rem] lg:leading-[1.05]">
               {t("auth.title")}
             </h1>
-            <p className="max-w-md text-base leading-7 text-muted-foreground sm:text-lg">
-              {t("auth.description")}
-            </p>
           </div>
         </section>
 
         {/* Login card */}
         <Card className="shadow-md shadow-stone-900/[0.06]">
-          <CardHeader className="space-y-3 p-6 sm:p-8">
-            <CardTitle className="font-heading text-2xl font-semibold tracking-tight">
-              {t("auth.cardTitle")}
-            </CardTitle>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t("auth.cardDescription")}
-            </p>
+          <CardHeader className="p-6 sm:p-8">
+            <CardTitle className="font-heading text-2xl font-semibold tracking-tight">{t("auth.cardTitle")}</CardTitle>
           </CardHeader>
 
           <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
             <form className="grid gap-5" onSubmit={handleSubmit}>
               <div className="grid gap-3 rounded-xl border border-border/60 bg-muted/20 p-4">
-                <div className="space-y-1">
-                  <p className="text-sm font-medium text-foreground">{t("auth.demoAccounts.title")}</p>
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    {t("auth.demoAccounts.description")}
-                  </p>
-                </div>
+                <p className="text-sm font-medium text-foreground">{t("auth.demoAccounts.title")}</p>
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   {demoAccounts.map((account) => (
@@ -119,7 +102,6 @@ function LoginPage() {
                           {account.username}
                         </span>
                       </div>
-                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{account.description}</p>
                     </button>
                   ))}
                 </div>
@@ -129,7 +111,7 @@ function LoginPage() {
                 </p>
               </div>
 
-              <Field label={t("auth.fields.username.label")} hint={t("auth.fields.username.hint")}>
+              <Field label={t("auth.fields.username.label")}>
                 <Input
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
@@ -138,7 +120,7 @@ function LoginPage() {
                 />
               </Field>
 
-              <Field label={t("auth.fields.password.label")} hint={t("auth.fields.password.hint")}>
+              <Field label={t("auth.fields.password.label")}>
                 <Input
                   type="password"
                   value={password}
@@ -175,11 +157,11 @@ function LoginPage() {
   )
 }
 
-function Field({ label, hint, children }: { label: string; hint: string; children: ReactNode }) {
+function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label className="grid gap-1.5">
       <span className="text-sm font-medium text-foreground">{label}</span>
-      <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p>
+      {hint ? <p className="text-xs leading-relaxed text-muted-foreground">{hint}</p> : null}
       {children}
     </label>
   )

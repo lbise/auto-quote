@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
 
+from app.core.auth import get_current_user
 from app.core.config import get_settings
+from app.models.user import User
 from app.schemas.transcription import TranscriptionResponse
 from app.services.transcription_service import (
     ALLOWED_MIME_TYPES,
@@ -19,7 +21,9 @@ router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 async def create_transcription(
     file: UploadFile,
     language: str = Form(default=""),
+    current_user: User = Depends(get_current_user),
 ) -> TranscriptionResponse:
+    del current_user
     settings = get_settings()
 
     # Validate content type

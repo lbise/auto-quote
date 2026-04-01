@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.models.user import User
 from app.models.quote_message import QuoteMessage
 from app.schemas.chat import AssistantReply, QuoteChatRequest
 from app.schemas.quotes import QuoteRead, QuoteUpdate
@@ -40,13 +41,13 @@ def add_quote_message(
     return message
 
 
-def handle_quote_chat(db: Session, quote_id: int, payload: QuoteChatRequest) -> tuple[AssistantReply, Any]:
+def handle_quote_chat(db: Session, user: User, quote_id: int, payload: QuoteChatRequest) -> tuple[AssistantReply, Any]:
     message_text = payload.message.strip()
     if not message_text:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Message cannot be empty")
 
-    quote = get_quote(db, quote_id)
-    settings = get_or_create_settings(db)
+    quote = get_quote(db, user.id, quote_id)
+    settings = get_or_create_settings(db, user.id)
     conversation = [
         {
             "role": message.role,
@@ -86,9 +87,9 @@ def handle_quote_chat(db: Session, quote_id: int, payload: QuoteChatRequest) -> 
     )
 
     if assistant_reply.action == "update_quote" and quote_patch_json:
-        quote = update_quote(db, quote_id, QuoteUpdate.model_validate(quote_patch_json))
+        quote = update_quote(db, user.id, quote_id, QuoteUpdate.model_validate(quote_patch_json))
     else:
-        quote = get_quote(db, quote_id)
+        quote = get_quote(db, user.id, quote_id)
 
     add_quote_message(
         db,
@@ -99,5 +100,5 @@ def handle_quote_chat(db: Session, quote_id: int, payload: QuoteChatRequest) -> 
         quote_patch_json=quote_patch_json,
     )
 
-    quote = get_quote(db, quote_id)
+    quote = get_quote(db, user.id, quote_id)
     return assistant_reply, QuoteRead.model_validate(quote)

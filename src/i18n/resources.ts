@@ -16,7 +16,7 @@ export const resources = {
       },
       auth: {
         badge: "Accès démo privé",
-        subtitle: "Connexion partagée pour les démonstrations client",
+        subtitle: "Connexion artisan pour les démonstrations client",
         title: "Connectez-vous pour accéder à vos devis.",
         description: "Entrez vos identifiants pour continuer.",
         cardEyebrow: "Connexion sécurisée",
@@ -26,16 +26,39 @@ export const resources = {
         insights: {
           privateTitle: "Accès privé",
           privateDetail: "Les routes API restent fermées tant que la session n'est pas ouverte.",
-          sharedTitle: "Partagé",
-          sharedDetail: "Un seul identifiant suffit pour montrer le produit à un prospect.",
-          demoTitle: "Pragmatique",
-          demoDetail: "On garde un flux crédible aujourd'hui sans basculer dans un vrai SaaS multi-utilisateur.",
+          sharedTitle: "Par artisan",
+          sharedDetail: "Chaque compte dispose de ses propres devis, réglages et catalogue tarifaire.",
+          demoTitle: "Prêt pour les démos",
+          demoDetail: "Vous pouvez passer d'un artisan à l'autre sans mélanger les données.",
+        },
+        demoAccounts: {
+          title: "Comptes de démonstration",
+          description: "Choisissez un artisan de départ ou saisissez un identifiant existant.",
+          passwordHint: "Les comptes de démonstration partagent le mot de passe configuré sur le serveur.",
+          accounts: {
+            demo: {
+              title: "Bac à sable",
+              description: "Compte générique pour tester librement l'application et les réglages.",
+            },
+            painter: {
+              title: "Peintre",
+              description: "Catalogue orienté préparation des supports, peinture intérieure et finitions.",
+            },
+            carpenter: {
+              title: "Menuisier",
+              description: "Catalogue orienté fabrication sur mesure, ajustements et protection du bois.",
+            },
+            electrician: {
+              title: "Électricien",
+              description: "Catalogue orienté prises, tableau électrique et passage de câbles.",
+            },
+          },
         },
         fields: {
           username: {
             label: "Identifiant",
-            hint: "Nom du compte partagé défini côté serveur.",
-            placeholder: "owner",
+            hint: "Nom du compte artisan ou du compte démo.",
+            placeholder: "demo",
           },
           password: {
             label: "Mot de passe",
@@ -50,7 +73,7 @@ export const resources = {
         },
         loadingSession: "Chargement de la session AutoQuote...",
         errors: {
-          login: "Impossible d'ouvrir la session démo",
+          login: "Impossible d'ouvrir la session",
         },
       },
       common: {
@@ -566,7 +589,7 @@ export const resources = {
       },
       auth: {
         badge: "Private demo access",
-        subtitle: "Shared sign-in for customer demos",
+        subtitle: "Artisan sign-in for customer demos",
         title: "Sign in to access your quotes.",
         description: "Enter your credentials to continue.",
         cardEyebrow: "Secure sign-in",
@@ -576,16 +599,39 @@ export const resources = {
         insights: {
           privateTitle: "Private access",
           privateDetail: "API routes stay closed until the shared session is opened.",
-          sharedTitle: "Shared login",
-          sharedDetail: "One account is enough to walk a prospect through the product.",
-          demoTitle: "Pragmatic",
-          demoDetail: "It feels real for demos now without dragging the PoC into full SaaS auth.",
+          sharedTitle: "Per artisan",
+          sharedDetail: "Each account gets its own quotes, defaults, and pricing catalog.",
+          demoTitle: "Demo-ready",
+          demoDetail: "You can switch between artisans without mixing business data.",
+        },
+        demoAccounts: {
+          title: "Demo accounts",
+          description: "Pick a seeded artisan account or type an existing username.",
+          passwordHint: "All seeded demo accounts share the password configured on the server.",
+          accounts: {
+            demo: {
+              title: "Sandbox",
+              description: "Generic account for experimenting with the app and trying new defaults.",
+            },
+            painter: {
+              title: "Painter",
+              description: "Catalog focused on prep work, interior painting, and premium finishes.",
+            },
+            carpenter: {
+              title: "Carpenter",
+              description: "Catalog focused on custom joinery, adjustments, and wood protection.",
+            },
+            electrician: {
+              title: "Electrician",
+              description: "Catalog focused on outlets, panel work, and cable runs.",
+            },
+          },
         },
         fields: {
           username: {
             label: "Username",
-            hint: "Shared account name configured on the server.",
-            placeholder: "owner",
+            hint: "Artisan account username or the shared sandbox account.",
+            placeholder: "demo",
           },
           password: {
             label: "Password",
@@ -600,7 +646,7 @@ export const resources = {
         },
         loadingSession: "Loading AutoQuote session...",
         errors: {
-          login: "Could not open the demo session",
+          login: "Could not open the session",
         },
       },
       common: {

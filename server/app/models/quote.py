@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-from sqlalchemy import Boolean, Date, DateTime, Integer, Numeric, String, Text, func
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
@@ -12,6 +12,7 @@ class Quote(Base):
     __tablename__ = "quotes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     quote_number: Mapped[str] = mapped_column(String(32), unique=True, index=True)
     status: Mapped[str] = mapped_column(String(20), default="draft")
     customer_name: Mapped[str] = mapped_column(String(255), default="")
@@ -44,6 +45,7 @@ class Quote(Base):
         nullable=False,
     )
 
+    user: Mapped["User"] = relationship(back_populates="quotes")
     line_items: Mapped[list["QuoteLineItem"]] = relationship(
         back_populates="quote",
         cascade="all, delete-orphan",

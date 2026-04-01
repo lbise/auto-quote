@@ -1,21 +1,22 @@
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models.settings import AppSettings
 from app.schemas.settings import SettingsUpdate
 
 
-def get_or_create_settings(db: Session) -> AppSettings:
-    settings = db.get(AppSettings, 1)
+def get_or_create_settings(db: Session, user_id: int) -> AppSettings:
+    settings = db.scalar(select(AppSettings).where(AppSettings.user_id == user_id))
     if settings is None:
-        settings = AppSettings(id=1)
+        settings = AppSettings(user_id=user_id)
         db.add(settings)
         db.commit()
         db.refresh(settings)
     return settings
 
 
-def update_settings(db: Session, payload: SettingsUpdate) -> AppSettings:
-    settings = get_or_create_settings(db)
+def update_settings(db: Session, user_id: int, payload: SettingsUpdate) -> AppSettings:
+    settings = get_or_create_settings(db, user_id)
     updates = payload.model_dump(exclude_unset=True)
 
     for field, value in updates.items():

@@ -9,13 +9,13 @@ Recommended environment variables:
 - `APP_ENV=production`
 - `PORT=8000`
 - `DATABASE_URL=sqlite:////app/data/app.db`
-- `APP_USERNAME=owner`
-- `APP_PASSWORD=<shared-demo-password>`
+- `DEMO_PASSWORD=<seeded-demo-password>`
+- `APP_SESSION_SECRET=<session-signing-secret>`
 - `OPENAI_API_KEY=<provider-key>`
 - `OPENAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai`
 - `OPENAI_MODEL=gemini-2.5-flash`
 
-If `APP_PASSWORD` is set, the whole app is protected with HTTP Basic Auth except `GET /api/health`.
+The app now uses cookie sessions backed by seeded database users. On startup it creates `demo`, `painter`, `carpenter`, and `electrician` accounts when missing.
 
 ## Persistent Storage
 

@@ -1,10 +1,15 @@
-import secrets
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, Cookie, HTTPException, Response, status
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
 
-from app.core.auth import SESSION_COOKIE_NAME, create_session_token, verify_session_token
+from app.core.auth import SESSION_COOKIE_NAME, create_session_token, get_session_user
 from app.core.config import get_settings
+from app.core.db import get_db
+from app.core.passwords import verify_password
+from app.models.user import User
 from app.schemas.auth import AuthLoginRequest, AuthSessionResponse
+from app.services.bootstrap_service import ensure_demo_users
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -13,24 +18,20 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 @router.get("/session", response_model=AuthSessionResponse)
 def read_session(
     session_token: str | None = Cookie(default=None, alias=SESSION_COOKIE_NAME),
+    db: Session = Depends(get_db),
 ) -> AuthSessionResponse:
-    username = verify_session_token(session_token)
-    return AuthSessionResponse(authenticated=username is not None, username=username)
+    user = get_session_user(db, session_token)
+    return _build_session_response(user)
 
 
 @router.post("/login", response_model=AuthSessionResponse)
-def login(payload: AuthLoginRequest, response: Response) -> AuthSessionResponse:
+def login(payload: AuthLoginRequest, response: Response, db: Session = Depends(get_db)) -> AuthSessionResponse:
     settings = get_settings()
+    ensure_demo_users(db)
+    normalized_username = payload.username.strip().lower()
+    user = db.scalar(select(User).where(User.username == normalized_username))
 
-    if not settings.app_password:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="App login is not configured. Set APP_PASSWORD to enable demo sign-in.",
-        )
-
-    if not secrets.compare_digest(payload.username, settings.app_username) or not secrets.compare_digest(
-        payload.password, settings.app_password
-    ):
+    if user is None or not user.is_active or not verify_password(payload.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password.",
@@ -38,14 +39,14 @@ def login(payload: AuthLoginRequest, response: Response) -> AuthSessionResponse:
 
     response.set_cookie(
         key=SESSION_COOKIE_NAME,
-        value=create_session_token(settings.app_username),
+        value=create_session_token(user.id),
         httponly=True,
         samesite="lax",
         secure=settings.app_env != "development",
         max_age=settings.session_max_age_seconds,
         path="/",
     )
-    return AuthSessionResponse(authenticated=True, username=settings.app_username)
+    return _build_session_response(user)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
@@ -60,3 +61,16 @@ def logout() -> Response:
         path="/",
     )
     return response
+
+
+def _build_session_response(user: User | None) -> AuthSessionResponse:
+    if user is None:
+        return AuthSessionResponse(authenticated=False)
+
+    return AuthSessionResponse(
+        authenticated=True,
+        user_id=user.id,
+        username=user.username,
+        display_name=user.display_name,
+        trade=user.trade,
+    )

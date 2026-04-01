@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes.auth import router as auth_router
@@ -10,8 +10,9 @@ from app.api.routes.health import router as health_router
 from app.api.routes.quotes import router as quotes_router
 from app.api.routes.settings import router as settings_router
 from app.api.routes.transcriptions import router as transcriptions_router
-from app.core.auth import SESSION_COOKIE_NAME, verify_session_token
 from app.core.config import ROOT_DIR, get_settings
+from app.core.db import SessionLocal
+from app.services.bootstrap_service import ensure_demo_users
 
 
 settings = get_settings()
@@ -32,29 +33,10 @@ app.include_router(settings_router, prefix="/api")
 app.include_router(transcriptions_router, prefix="/api")
 
 
-@app.middleware("http")
-async def require_basic_auth(request: Request, call_next):
-    if not settings.app_password:
-        return await call_next(request)
-
-    if request.method == "OPTIONS":
-        return await call_next(request)
-
-    if not request.url.path.startswith("/api"):
-        return await call_next(request)
-
-    if request.url.path == "/api/health" or request.url.path.startswith("/api/auth"):
-        return await call_next(request)
-
-    session_username = verify_session_token(request.cookies.get(SESSION_COOKIE_NAME))
-    if session_username:
-        return await call_next(request)
-
-    return PlainTextResponse(
-        "Authentication required",
-        status_code=401,
-        headers={"WWW-Authenticate": 'Basic realm="AutoQuote"'},
-    )
+@app.on_event("startup")
+def bootstrap_demo_data() -> None:
+    with SessionLocal() as db:
+        ensure_demo_users(db)
 
 
 if frontend_dist_dir.exists():

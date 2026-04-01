@@ -28,10 +28,12 @@ That command now:
 
 Development auth defaults:
 
-- username: `demo`
+- usernames: `demo`, `painter`, `carpenter`, `electrician`
 - password: `demo`
 
-You can override them locally with `APP_USERNAME`, `APP_PASSWORD`, and `APP_SESSION_SECRET` in `.env`.
+The seeded demo accounts are created automatically on startup or on the first login attempt.
+
+You can override the shared seed password locally with `DEMO_PASSWORD` or `APP_PASSWORD`, and set `APP_SESSION_SECRET` in `.env`.
 
 If you only want one side of the app, you can also use:
 
@@ -66,7 +68,7 @@ The frontend now includes:
 - `/` for the quote dashboard
 - `/settings` for business defaults
 - `/quotes/:id` for the quote workspace shell
-- `/login` for the shared demo sign-in screen
+- `/login` for the artisan account sign-in screen
 
 Language support currently includes:
 
@@ -160,8 +162,7 @@ Recommended environment variables:
 - `DATABASE_URL=sqlite:////app/data/app.db`
 - `LLM_MODE=openai`
 - `OPENAI_API_KEY` when using a real model
-- `APP_USERNAME=owner`
-- `APP_PASSWORD` for the shared demo login
+- `DEMO_PASSWORD` or `APP_PASSWORD` for the seeded demo accounts
 - `APP_SESSION_SECRET` for signed session cookies
 
 Important SQLite constraint:
@@ -173,7 +174,8 @@ If your GitHub package is private, SwiftWave will also need GitHub Container Reg
 SwiftWave deployment notes:
 
 - HTTPS should be enabled at the platform or reverse-proxy layer
-- the app-side shared login is enabled by setting `APP_PASSWORD` and `APP_SESSION_SECRET`
+- the app seeds the `demo`, `painter`, `carpenter`, and `electrician` accounts at startup
+- override the seeded account password with `DEMO_PASSWORD` or `APP_PASSWORD`, and set `APP_SESSION_SECRET`
 - leave the container at a single replica while SQLite is in use
 
 ## Backup and Restore

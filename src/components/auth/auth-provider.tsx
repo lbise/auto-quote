@@ -17,7 +17,10 @@ type AuthContextValue = {
 
 const unauthenticatedSession: AuthSession = {
   authenticated: false,
+  user_id: null,
   username: null,
+  display_name: null,
+  trade: null,
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)

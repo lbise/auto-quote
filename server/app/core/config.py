@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     debug: bool = False
     app_username: str | None = Field(default=None, alias="APP_USERNAME")
     app_password: str | None = Field(default=None, alias="APP_PASSWORD")
+    demo_password: str | None = Field(default=None, alias="DEMO_PASSWORD")
     app_session_secret: str | None = Field(default=None, alias="APP_SESSION_SECRET")
     session_max_age_seconds: int = Field(default=60 * 60 * 24 * 7, alias="SESSION_MAX_AGE_SECONDS")
     database_url: str = Field(
@@ -50,8 +51,9 @@ class Settings(BaseSettings):
                 self.app_password = "demo"
             if not self.app_session_secret:
                 self.app_session_secret = "dev-session-secret"
-        elif not self.app_username:
-            self.app_username = "owner"
+
+        if not self.demo_password:
+            self.demo_password = self.app_password or "demo"
 
         return self
 

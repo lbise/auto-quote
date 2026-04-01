@@ -15,13 +15,13 @@ def _quote_query():
     return select(Quote).options(selectinload(Quote.line_items), selectinload(Quote.messages))
 
 
-def list_quotes(db: Session) -> list[Quote]:
-    statement = _quote_query().order_by(Quote.updated_at.desc(), Quote.id.desc())
+def list_quotes(db: Session, user_id: int) -> list[Quote]:
+    statement = _quote_query().where(Quote.user_id == user_id).order_by(Quote.updated_at.desc(), Quote.id.desc())
     return list(db.scalars(statement).unique().all())
 
 
-def get_quote(db: Session, quote_id: int) -> Quote:
-    statement = _quote_query().where(Quote.id == quote_id)
+def get_quote(db: Session, user_id: int, quote_id: int) -> Quote:
+    statement = _quote_query().where(Quote.id == quote_id, Quote.user_id == user_id)
     quote = db.scalar(statement)
 
     if quote is None:
@@ -47,10 +47,11 @@ def _build_line_item(payload: QuoteLineItemInput, index: int) -> QuoteLineItem:
     )
 
 
-def create_quote(db: Session, payload: QuoteCreate) -> Quote:
-    settings = get_or_create_settings(db)
+def create_quote(db: Session, user_id: int, payload: QuoteCreate) -> Quote:
+    settings = get_or_create_settings(db, user_id)
 
     quote = Quote(
+        user_id=user_id,
         quote_number=_next_quote_number(db),
         status=payload.status,
         customer_name=payload.customer_name.strip(),
@@ -73,11 +74,11 @@ def create_quote(db: Session, payload: QuoteCreate) -> Quote:
     recalculate_quote(quote)
     db.add(quote)
     db.commit()
-    return get_quote(db, quote.id)
+    return get_quote(db, user_id, quote.id)
 
 
-def update_quote(db: Session, quote_id: int, payload: QuoteUpdate) -> Quote:
-    quote = get_quote(db, quote_id)
+def update_quote(db: Session, user_id: int, quote_id: int, payload: QuoteUpdate) -> Quote:
+    quote = get_quote(db, user_id, quote_id)
     updates = payload.model_dump(exclude_unset=True, exclude={"line_items"})
 
     for field, value in updates.items():
@@ -98,10 +99,10 @@ def update_quote(db: Session, quote_id: int, payload: QuoteUpdate) -> Quote:
     recalculate_quote(quote)
     db.add(quote)
     db.commit()
-    return get_quote(db, quote.id)
+    return get_quote(db, user_id, quote.id)
 
 
-def delete_quote(db: Session, quote_id: int) -> None:
-    quote = get_quote(db, quote_id)
+def delete_quote(db: Session, user_id: int, quote_id: int) -> None:
+    quote = get_quote(db, user_id, quote_id)
     db.delete(quote)
     db.commit()

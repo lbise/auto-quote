@@ -152,7 +152,10 @@ export type QuoteChatResponse = {
 
 export type AuthSession = {
   authenticated: boolean
+  user_id: number | null
   username: string | null
+  display_name: string | null
+  trade: string | null
 }
 
 export type AuthLoginPayload = {

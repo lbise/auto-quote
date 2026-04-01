@@ -15,6 +15,28 @@ function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const demoAccounts = [
+    {
+      username: "demo",
+      title: t("auth.demoAccounts.accounts.demo.title"),
+      description: t("auth.demoAccounts.accounts.demo.description"),
+    },
+    {
+      username: "painter",
+      title: t("auth.demoAccounts.accounts.painter.title"),
+      description: t("auth.demoAccounts.accounts.painter.description"),
+    },
+    {
+      username: "carpenter",
+      title: t("auth.demoAccounts.accounts.carpenter.title"),
+      description: t("auth.demoAccounts.accounts.carpenter.description"),
+    },
+    {
+      username: "electrician",
+      title: t("auth.demoAccounts.accounts.electrician.title"),
+      description: t("auth.demoAccounts.accounts.electrician.description"),
+    },
+  ]
 
   if (!isLoading && session.authenticated) {
     return <Navigate to="/" replace />
@@ -72,6 +94,41 @@ function LoginPage() {
 
           <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
             <form className="grid gap-5" onSubmit={handleSubmit}>
+              <div className="grid gap-3 rounded-xl border border-border/60 bg-muted/20 p-4">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">{t("auth.demoAccounts.title")}</p>
+                  <p className="text-xs leading-relaxed text-muted-foreground">
+                    {t("auth.demoAccounts.description")}
+                  </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {demoAccounts.map((account) => (
+                    <button
+                      key={account.username}
+                      type="button"
+                      onClick={() => {
+                        setUsername(account.username)
+                        setError(null)
+                      }}
+                      className="rounded-xl border border-border/60 bg-background px-4 py-3 text-left transition-colors hover:bg-secondary"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-medium text-foreground">{account.title}</span>
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                          {account.username}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{account.description}</p>
+                    </button>
+                  ))}
+                </div>
+
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  {t("auth.demoAccounts.passwordHint")}
+                </p>
+              </div>
+
               <Field label={t("auth.fields.username.label")} hint={t("auth.fields.username.hint")}>
                 <Input
                   value={username}

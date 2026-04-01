@@ -1,8 +1,8 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import JSON, DateTime, Integer, Numeric, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
 
@@ -10,7 +10,8 @@ from app.core.db import Base
 class AppSettings(Base):
     __tablename__ = "settings"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, default=1)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, unique=True)
     business_name: Mapped[str] = mapped_column(String(255), default="")
     business_email: Mapped[str | None] = mapped_column(String(255), nullable=True, default=None)
     business_phone: Mapped[str] = mapped_column(String(50), default="")
@@ -27,3 +28,5 @@ class AppSettings(Base):
         onupdate=func.now(),
         nullable=False,
     )
+
+    user: Mapped["User"] = relationship(back_populates="settings")

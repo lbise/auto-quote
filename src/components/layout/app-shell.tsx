@@ -141,7 +141,7 @@ function AppShell({ children }: { children: ReactNode }) {
 
             {/* User */}
             <span className="text-xs font-medium text-muted-foreground">
-              {session.username || t("auth.sharedUser")}
+              {session.display_name || session.username || t("auth.sharedUser")}
             </span>
             <Button
               variant="ghost"

@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import subprocess
 from urllib import error, request
 
 from app.core.config import get_settings
@@ -74,6 +75,7 @@ def transcribe_audio(audio_bytes: bytes, audio_format: str, language: str | None
             "Transcription is not configured. Set OPENAI_API_KEY and OPENAI_BASE_URL."
         )
 
+    audio_bytes, audio_format = _normalize_audio_for_provider(audio_bytes, audio_format)
     audio_b64 = base64.standard_b64encode(audio_bytes).decode("ascii")
 
     prompt = "Transcribe this audio faithfully. Return only the verbatim transcript text, nothing else."
@@ -165,3 +167,47 @@ def transcribe_audio(audio_bytes: bytes, audio_format: str, language: str | None
         raise TranscriptionProviderError("Transcription returned empty text.")
 
     return content.strip()
+
+
+def _normalize_audio_for_provider(audio_bytes: bytes, audio_format: str) -> tuple[bytes, str]:
+    if audio_format in {"wav", "mp3"}:
+        return audio_bytes, audio_format
+
+    try:
+        result = subprocess.run(
+            [
+                "ffmpeg",
+                "-nostdin",
+                "-v",
+                "error",
+                "-i",
+                "pipe:0",
+                "-ac",
+                "1",
+                "-ar",
+                "16000",
+                "-f",
+                "wav",
+                "pipe:1",
+            ],
+            input=audio_bytes,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except FileNotFoundError as exc:
+        raise TranscriptionConfigError(
+            "Transcription needs ffmpeg installed to convert recorded audio before sending it to Gemini."
+        ) from exc
+
+    if result.returncode != 0 or not result.stdout:
+        logger.warning(
+            "Audio conversion failed input_format=%s stderr=%s",
+            audio_format,
+            result.stderr.decode("utf-8", errors="ignore")[:1000],
+        )
+        raise TranscriptionProviderError(
+            f"Could not convert {audio_format} audio into a Gemini-compatible format."
+        )
+
+    return result.stdout, "wav"

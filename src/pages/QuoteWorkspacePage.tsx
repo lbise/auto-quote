@@ -22,7 +22,6 @@ import {
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate, useParams } from "react-router-dom"
 
-import { QuotePrintSheet } from "@/components/quotes/quote-print-sheet"
 import { QuoteStatusBadge } from "@/components/quotes/quote-status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -122,6 +121,7 @@ function QuoteWorkspacePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
+  const [isPrintingPdf, setIsPrintingPdf] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isChatting, setIsChatting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -132,7 +132,6 @@ function QuoteWorkspacePage() {
   const [catalogInsert, setCatalogInsert] = useState<CatalogInsertState>(emptyCatalogInsertState)
   const [catalogError, setCatalogError] = useState<string | null>(null)
   const chatScrollRef = useRef<HTMLDivElement>(null)
-  const pdfSheetRef = useRef<HTMLElement>(null)
 
   const voice = useVoiceRecorder({
     language: form?.locale,
@@ -400,12 +399,47 @@ function QuoteWorkspacePage() {
     }
   }
 
-  function handlePrint() {
-    window.print()
+  async function handlePrint() {
+    if (!quote) {
+      return
+    }
+
+    const previewWindow = window.open("", "_blank")
+    if (!previewWindow) {
+      setError(t("quote.errors.printPdf"))
+      return
+    }
+
+    previewWindow.document.title = t("quote.actions.printingPdf")
+    previewWindow.document.body.innerHTML = `<p style=\"font-family: sans-serif; padding: 24px;\">${t("quote.actions.printingPdf")}</p>`
+
+    setIsPrintingPdf(true)
+    setError(null)
+
+    try {
+      const [{ buildQuotePdfBlob }] = await Promise.all([import("@/lib/quote-pdf")])
+      const blob = buildQuotePdfBlob({
+        quote,
+        settings: businessSettings,
+        locale,
+        t,
+        autoPrint: true,
+      })
+      const blobUrl = URL.createObjectURL(blob)
+
+      previewWindow.location.href = blobUrl
+      previewWindow.focus()
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 5 * 60_000)
+    } catch (printError) {
+      previewWindow.close()
+      setError(toErrorMessage(printError, t("quote.errors.printPdf")))
+    } finally {
+      setIsPrintingPdf(false)
+    }
   }
 
   async function handleDownloadPdf() {
-    if (!quote || !pdfSheetRef.current) {
+    if (!quote) {
       return
     }
 
@@ -420,52 +454,16 @@ function QuoteWorkspacePage() {
     setError(null)
 
     try {
-      if ("fonts" in document) {
-        await document.fonts.ready
-      }
-
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
+      const [{ buildQuotePdfBlob }] = await Promise.all([
+        import("@/lib/quote-pdf"),
       ])
-
-      const sheet = pdfSheetRef.current
-      const canvas = await html2canvas(sheet, {
-        backgroundColor: "#ffffff",
-        scale: Math.max(2, window.devicePixelRatio || 1),
-        useCORS: true,
-        windowWidth: sheet.scrollWidth,
-        windowHeight: sheet.scrollHeight,
-      })
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "pt",
-        format: "a4",
-        compress: true,
-      })
-      const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
-      const margin = 24
-      const usableWidth = pageWidth - margin * 2
-      const usableHeight = pageHeight - margin * 2
-      const imageHeight = (canvas.height * usableWidth) / canvas.width
-      const imageData = canvas.toDataURL("image/png")
-      let remainingHeight = imageHeight
-      let offsetY = margin
-
-      pdf.addImage(imageData, "PNG", margin, offsetY, usableWidth, imageHeight, undefined, "FAST")
-      remainingHeight -= usableHeight
-
-      while (remainingHeight > 0) {
-        offsetY -= usableHeight
-        pdf.addPage()
-        pdf.addImage(imageData, "PNG", margin, offsetY, usableWidth, imageHeight, undefined, "FAST")
-        remainingHeight -= usableHeight
-      }
-
       const filename = buildQuotePdfFilename(quote)
-      const blob = pdf.output("blob")
+      const blob = buildQuotePdfBlob({
+        quote,
+        settings: businessSettings,
+        locale,
+        t,
+      })
       const blobUrl = URL.createObjectURL(blob)
 
       if (previewWindow) {
@@ -474,7 +472,7 @@ function QuoteWorkspacePage() {
         triggerPdfDownload(blobUrl, filename)
       }
 
-      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 5 * 60_000)
     } catch (downloadError) {
       previewWindow?.close()
       setError(toErrorMessage(downloadError, t("quote.errors.downloadPdf")))
@@ -893,7 +891,7 @@ function QuoteWorkspacePage() {
                     variant="outline"
                     className="w-full"
                     onClick={() => void handleDownloadPdf()}
-                    disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
+                    disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf || isPrintingPdf}
                   >
                     {isDownloadingPdf ? <RiLoader4Line className="size-4 animate-spin" /> : <RiDownloadLine className="size-4" />}
                     {isDownloadingPdf ? t("quote.actions.downloadingPdf") : t("quote.actions.downloadPdf")}
@@ -903,11 +901,11 @@ function QuoteWorkspacePage() {
                     type="button"
                     variant="outline"
                     className="w-full"
-                    onClick={handlePrint}
-                    disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
+                    onClick={() => void handlePrint()}
+                    disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf || isPrintingPdf}
                   >
-                    <RiPrinterLine className="size-4" />
-                    {t("quote.actions.print")}
+                    {isPrintingPdf ? <RiLoader4Line className="size-4 animate-spin" /> : <RiPrinterLine className="size-4" />}
+                    {isPrintingPdf ? t("quote.actions.printingPdf") : t("quote.actions.print")}
                   </Button>
                 </div>
               </TabsContent>
@@ -958,7 +956,7 @@ function QuoteWorkspacePage() {
                   variant="outline"
                   size="sm"
                   onClick={() => void handleDownloadPdf()}
-                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
+                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf || isPrintingPdf}
                 >
                   {isDownloadingPdf ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiDownloadLine className="size-3.5" />}
                   {isDownloadingPdf ? t("quote.actions.downloadingPdf") : t("quote.actions.downloadPdf")}
@@ -967,11 +965,11 @@ function QuoteWorkspacePage() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={handlePrint}
-                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf}
+                  onClick={() => void handlePrint()}
+                  disabled={hasUnsavedChanges || isSaving || isChatting || isDeleting || isDownloadingPdf || isPrintingPdf}
                 >
-                  <RiPrinterLine className="size-3.5" />
-                  {t("quote.actions.print")}
+                  {isPrintingPdf ? <RiLoader4Line className="size-3.5 animate-spin" /> : <RiPrinterLine className="size-3.5" />}
+                  {isPrintingPdf ? t("quote.actions.printingPdf") : t("quote.actions.print")}
                 </Button>
                 <Button
                   type="submit"
@@ -1412,9 +1410,6 @@ function QuoteWorkspacePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <QuotePrintSheet quote={quote} settings={businessSettings} locale={locale} />
-      <QuotePrintSheet ref={pdfSheetRef} quote={quote} settings={businessSettings} locale={locale} mode="export" />
     </>
   )
 }

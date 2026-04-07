@@ -1,0 +1,155 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e10]: AutoQuote
+    - navigation [ref=e11]:
+      - link "Tableau de bord" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Tableau de bord
+      - link "Paramètres" [ref=e15] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e16]
+        - text: Paramètres
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - 'button "Langue: Français" [ref=e20]': FR
+        - 'button "Langue: Anglais" [ref=e21]': EN
+      - generic [ref=e22]: demo
+      - button "Quitter" [ref=e23]:
+        - img
+        - text: Quitter
+  - main [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: brouillon
+            - generic [ref=e31]: AQ-0003
+          - generic [ref=e33]: 1 avr. 2026, 14:57
+        - generic [ref=e34]:
+          - tablist [ref=e35]:
+            - tab "Assistant" [selected] [ref=e36]:
+              - img
+              - text: Assistant
+            - tab "Totaux" [ref=e37]:
+              - img
+              - text: Totaux
+            - tab "Revue" [ref=e38]:
+              - img
+              - text: Revue
+          - tabpanel "Assistant" [ref=e39]:
+            - generic [ref=e41]:
+              - img [ref=e43]
+              - paragraph [ref=e45]: Commencez la conversation
+            - generic [ref=e46]:
+              - 'textbox "Ex : Je dois préparer un devis pour repeindre deux salles de réunion et le hall d''accueil." [ref=e47]'
+              - generic [ref=e48]:
+                - button "Dicter un message" [ref=e49]:
+                  - img
+                - button "Envoyer" [disabled]:
+                  - img
+                  - text: Envoyer
+      - generic [ref=e50]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - link [ref=e54] [cursor=pointer]:
+              - /url: /
+              - img
+            - paragraph [ref=e56]: AQ-0003TVA par défaut 7,7 %
+          - generic [ref=e57]:
+            - button [ref=e58]:
+              - img
+            - button "Télécharger le PDF" [ref=e59]:
+              - img
+              - text: Télécharger le PDF
+            - button "Imprimer" [ref=e60]:
+              - img
+              - text: Imprimer
+            - button "Enregistrer le devis" [ref=e61]:
+              - img
+              - text: Enregistrer le devis
+        - generic [ref=e64]:
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - img [ref=e68]
+              - paragraph [ref=e70]: Client et informations de base
+            - generic [ref=e71]:
+              - generic [ref=e72]: Titre du devis
+              - textbox "Titre du devis" [ref=e73]:
+                - /placeholder: Devis pour repeindre des bureaux
+            - generic [ref=e74]:
+              - generic [ref=e75]: Statut
+              - combobox "Statut" [ref=e76]:
+                - generic: brouillon
+                - img
+              - combobox [ref=e77]
+            - generic [ref=e78]:
+              - generic [ref=e79]: Nom du client
+              - textbox "Nom du client" [ref=e80]:
+                - /placeholder: Camille Favre
+            - generic [ref=e81]:
+              - generic [ref=e82]: Société
+              - textbox "Société" [ref=e83]:
+                - /placeholder: Clinique du Lac SA
+            - generic [ref=e84]:
+              - generic [ref=e85]: Email
+              - textbox "Email" [ref=e86]:
+                - /placeholder: camille@cliniquedulac.ch
+            - generic [ref=e87]:
+              - generic [ref=e88]: Téléphone
+              - textbox "Téléphone" [ref=e89]:
+                - /placeholder: +41 79 555 12 34
+            - generic [ref=e91]:
+              - generic [ref=e92]: Adresse
+              - textbox "Adresse" [ref=e93]:
+                - /placeholder: "Chemin des Artisans 8\n1020 Renens VD"
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - img [ref=e97]
+              - paragraph [ref=e99]: Périmètre et conditions
+            - generic [ref=e100]:
+              - generic [ref=e101]: Langue du devis
+              - combobox "Langue du devis" [ref=e102]:
+                - generic: Français
+                - img
+              - combobox [ref=e103]
+            - generic [ref=e104]:
+              - generic [ref=e105]: Devise
+              - textbox "Devise" [ref=e106]:
+                - /placeholder: CHF
+                - text: CHF
+            - generic [ref=e107]:
+              - generic [ref=e108]: Valide jusqu'au
+              - textbox "Valide jusqu'au" [ref=e109]: 2026-05-01
+            - generic [ref=e111]:
+              - generic [ref=e112]: Résumé de la mission
+              - textbox "Résumé de la mission" [ref=e113]:
+                - /placeholder: Peinture intérieure d'un cabinet médical de 120 m² à Lausanne.
+            - generic [ref=e115]:
+              - generic [ref=e116]: Hypothèses
+              - textbox "Hypothèses" [ref=e117]:
+                - /placeholder: Le client garantit un accès dégagé au site pendant les heures d'ouverture.
+            - generic [ref=e119]:
+              - generic [ref=e120]: Conditions de paiement
+              - textbox "Conditions de paiement" [ref=e121]:
+                - /placeholder: Paiement à réception.
+                - text: Acompte de 30%, solde a reception du chantier
+            - generic [ref=e123]:
+              - generic [ref=e124]: Notes internes
+              - textbox "Notes internes" [ref=e125]:
+                - /placeholder: Confirmer le délai de livraison des matériaux avant envoi.
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - img [ref=e130]
+                - paragraph [ref=e132]: Lignes et chiffrage
+              - button "Ajouter une ligne" [ref=e133]:
+                - img
+                - text: Ajouter une ligne
+            - generic [ref=e134]:
+              - paragraph [ref=e135]: Aucune bibliothèque tarifaire active
+              - link "Configurer les tarifs" [ref=e136] [cursor=pointer]:
+                - /url: /settings
+            - paragraph [ref=e138]: Aucune ligne pour l'instant

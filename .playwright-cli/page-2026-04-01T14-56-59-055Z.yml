@@ -1,0 +1,73 @@
+- generic [ref=e48]:
+  - banner [ref=e49]:
+    - generic [ref=e50]:
+      - img [ref=e52]
+      - generic [ref=e54]: AutoQuote
+    - navigation [ref=e55]:
+      - link "Tableau de bord" [ref=e56] [cursor=pointer]:
+        - /url: /
+        - img [ref=e57]
+        - text: Tableau de bord
+      - link "Paramètres" [ref=e59] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e60]
+        - text: Paramètres
+    - generic [ref=e62]:
+      - generic [ref=e63]:
+        - 'button "Langue: Français" [ref=e64]': FR
+        - 'button "Langue: Anglais" [ref=e65]': EN
+      - generic [ref=e66]: demo
+      - button "Quitter" [ref=e67]:
+        - img
+        - text: Quitter
+  - main [ref=e68]:
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e72]:
+          - heading "Créez un devis ou reprenez un brouillon existant." [level=1] [ref=e74]
+          - generic [ref=e75]:
+            - button "Nouveau devis" [ref=e76]:
+              - img
+              - text: Nouveau devis
+            - link "Paramètres" [ref=e77] [cursor=pointer]:
+              - /url: /settings
+              - img
+              - text: Paramètres
+        - generic [ref=e78]:
+          - generic [ref=e81]:
+            - generic [ref=e82]:
+              - paragraph [ref=e83]: Total des devis
+              - paragraph [ref=e84]: "0"
+            - img [ref=e86]
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - paragraph [ref=e92]: Brouillons
+              - paragraph [ref=e93]: "0"
+            - img [ref=e95]
+          - generic [ref=e99]:
+            - generic [ref=e100]:
+              - paragraph [ref=e101]: Prêts à envoyer
+              - paragraph [ref=e102]: "0"
+            - img [ref=e104]
+      - generic [ref=e106]:
+        - generic [ref=e107]:
+          - generic [ref=e108]: Devis récents
+          - button "Actualiser" [ref=e109]:
+            - img
+            - text: Actualiser
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e113]:
+              - img
+              - textbox [ref=e114]:
+                - /placeholder: Rechercher par numéro, titre ou client
+            - generic [ref=e115]:
+              - button "Tous" [ref=e116]
+              - button "brouillon" [ref=e117]
+              - button "prêt" [ref=e118]
+              - button "envoyé" [ref=e119]
+          - generic [ref=e120]:
+            - paragraph [ref=e121]: Aucun devis pour l'instant
+            - button "Créer le premier devis" [ref=e122]:
+              - img
+              - text: Créer le premier devis

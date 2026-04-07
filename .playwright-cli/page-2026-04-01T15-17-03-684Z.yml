@@ -1,0 +1,26 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - generic [ref=e10]: AutoQuote
+    - navigation [ref=e11]:
+      - link "Tableau de bord" [ref=e12] [cursor=pointer]:
+        - /url: /
+        - img [ref=e13]
+        - text: Tableau de bord
+      - link "Paramètres" [ref=e15] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e16]
+        - text: Paramètres
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - 'button "Langue: Français" [ref=e20]': FR
+        - 'button "Langue: Anglais" [ref=e21]': EN
+      - generic [ref=e22]: demo
+      - button "Quitter" [ref=e23]:
+        - img
+        - text: Quitter
+  - main [ref=e24]:
+    - generic [ref=e26]:
+      - img [ref=e27]
+      - text: Chargement de l'espace devis...

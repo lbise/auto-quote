@@ -24,6 +24,12 @@
 - Production/demo auth credentials are expected to come from env vars like `APP_USERNAME`, `APP_PASSWORD`, and `APP_SESSION_SECRET`.
 - The next auth direction chosen by the user is a shared login screen with cookie session, not full per-user data isolation yet.
 
+# Dokploy Deployment Uses One Container And A Persistent `/app/data` Volume
+
+- The current production shape is a single Docker container that serves both FastAPI and the built frontend.
+- For Dokploy, mount a persistent volume at `/app/data` and set `DATABASE_URL=sqlite:////app/data/app.db`.
+- Keep the app at a single replica while SQLite is in use.
+
 # Be Careful Around Existing Uncommitted User Changes In Backend LLM Files And Docs
 
 - There are user-local uncommitted changes in files such as `README.md`, `docs/poc-implementation-plan.md`, `server/app/core/config.py`, `server/app/services/chat_service.py`, `server/app/services/llm_service.py`, `src/i18n/resources.ts`, and `.env`.

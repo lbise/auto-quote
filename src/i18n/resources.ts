@@ -380,6 +380,11 @@ export const resources = {
           customerBasics: "Client et informations de base",
           scopeAndTerms: "Périmètre et conditions",
           lineItemsAndPricing: "Lignes et chiffrage",
+          client: "Client",
+          workToQuote: "Travail à chiffrer",
+          pricing: "Chiffrage",
+          beforeSending: "Avant l'envoi",
+          moreContactDetails: "Plus de coordonnées",
         },
         fields: {
           quoteTitle: {
@@ -958,6 +963,11 @@ export const resources = {
           customerBasics: "Customer and quote basics",
           scopeAndTerms: "Scope and terms",
           lineItemsAndPricing: "Line items and pricing",
+          client: "Client",
+          workToQuote: "Work to quote",
+          pricing: "Pricing",
+          beforeSending: "Before sending",
+          moreContactDetails: "More contact details",
         },
         fields: {
           quoteTitle: {
